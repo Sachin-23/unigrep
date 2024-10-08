@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Unigrep: ~/files/...</title>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+<style type="text/css">
+html, body {
+	padding: 0;
+	margin: 0;
+	background: #444444;
+}
+hr {
+	border: none;
+	border-top: 1px solid #DEDEDE;
+}
+
+img {
+	max-width: 100%;
+	height: auto;
+}
+
+a {
+	color: #005CB2;
+	text-decoration: none;
+}
+
+code {
+	background-color: #eeeeee;
+	padding: 2px;
+	border-radius: 2px;
+}
+
+pre {
+	border-radius: 3px;
+	border: 1px solid grey;
+	padding: 5px;
+	margin: 5px;
+	background: #eeeeee !important;
+}
+
+pre code {
+	background-color: transparent;
+}
+
+table {
+	border-collapse: collapse;
+}
+
+table tr td {
+	border: 1px solid grey;
+	padding: 5px;
+}
+
+table tr:nth-of-type(even) {
+	background-color: #cccccc;
+}
+
+table tr:nth-of-type(odd) {
+	background-color: #bbbbbb;
+}
+
+table tr th {
+	border: 1px solid grey;
+	font-weight: bold;
+	padding: 5px;
+	background-color: #eeeeee;
+	text-align:center;
+}
+
+blockquote {
+	border-left: 2px solid #dddddd;
+	padding-left: 20px;
+	color: grey;
+	font-style: italic;
+}
+
+.container {
+	max-width: 1024px;
+	margin: auto;
+	text-align: justify;
+	font-family: sans;
+	background: #f2f2f2;
+}
+
+.header-title {
+	background-color: #666666;
+	padding: 10px;
+}
+
+.header-title .logo {
+	max-width: 200px;
+	height: auto;
+}
+
+.tabbar {
+	display: flex;
+	flex-direction: row;
+	align-items: left;
+	gap: 10px;
+	padding-left: 5px;
+	padding-right: 5px;
+	padding-top: 5px;
+	background-color: #dddddd;
+	border-bottom: 2px solid #666666;
+}
+
+.spacer {
+	flex: 1;
+}
+
+.tabbar .tab {
+	border-top-left-radius: 3px;
+	border-top-right-radius: 3px;
+	margin-bottom: 0;
+	padding: 5px;
+	background-color: #666666;
+	color: white;
+	font-size: 12px;
+	font-weight: bold;
+	cursor: pointer;
+	text-transform: uppercase;
+}
+
+.filter-body, .apply-body-content {
+	padding: 10px;
+}
+
+.filter-bar {
+	font-size: 12px;
+	font-family: monospace;
+	border: 1px solid grey;
+	padding: 5px;
+	margin: 5px 0 5px 0;
+	border-radius: 3px;
+	box-shadow: 0px 2px 0px 0px rgba(0,0,0,0.45);
+	background-color: white;
+}
+
+.caption {
+	color: #999999;
+	text-transform: uppercase;
+	font-size: small;
+	margin-bottom: 10px;
+}
+
+.results-bar {
+	border: 1px solid #444444;
+	padding: 5px;
+	margin: 5px 0 5px 0;
+	background-color: white;
+}
+
+.results-bar .result {
+	margin-bottom: 10px;
+	font-size: small;
+}
+
+.results-bar .result .title {
+	font-weight: bold;
+}
+
+.results-bar .result .path {
+	color: grey;
+	font-style: italic;
+}
+
+.button-bar-set {
+	display: flex;
+	flex-direction: row;
+	gap: 10px;
+	margin-top: 10px;
+	margin-bottom: 10px;
+}
+
+.button-bar {
+	display: flex;
+	gap: 0;
+	background-color: maroon;
+	box-shadow: 0px 2px 0px 0px rgba(0,0,0,0.45);
+	flex-direction: row;
+	border-radius: 3px;
+}
+
+.button-bar .button {
+	padding: 5px;
+	color: white;
+	border-right: 1px solid #eeeeee;
+	cursor: pointer;
+	text-transform: uppercase;
+	font-weight: bold;
+	font-size: 10px;
+}
+
+.button-bar .button:last-child {
+	border-top-right-radius: 3px;
+	border-bottom-right-radius: 3px;
+	border-right: none;
+}
+
+.button-bar .button:first-child {
+	border-top-left-radius: 3px;
+	border-bottom-left-radius: 3px;
+}
+
+.darkgreen {
+	background-color: darkolivegreen;
+}
+
+.darkblue {
+	background-color: darkslateblue;
+}
+
+.darkorange {
+	background-color: sienna;
+}
+
+.vertical-spacer {
+	height: 20px;
+}
+
+.section-box {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+}
+
+.section-box .caption {
+	margin-bottom: 0;
+}
+
+.path-item-box {
+	display: flex;
+	flex-direction: column;
+	gap: 5px;
+	margin-top: 10px;
+	margin-bottom: 10px;
+}
+
+.path-item {
+	border-radius: 3px;
+	font-family: monospace;
+	background-color: white;
+	border: 1px solid grey;
+	padding: 5px;
+	font-size: 12px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.path-item:after {
+	content: "x";
+	position: relative;
+	display: block;
+	float: right;
+	font-size: 10px;
+	width: 15px;
+	height: 13px;
+	border-radius: 5px;
+	border: 1px solid black;
+	vertical-align: middle;
+	text-align: center;
+	background-color: #f3f3f3;
+}
+
+.apply-head-caption {
+	font-weight: bold;
+	padding: 5px;
+	color: white;
+	font-size: 10px;
+	background-color: #666666;
+}
+
+.operation-select {
+	width: 100%;
+	border: 1px solid black;
+	font-size: 14px;
+	font-weight: bold;
+	border-radius: 3px;
+	background-color: #e8f5ff;
+	padding: 5px;
+}
+
+.operation-select option {
+	padding: 5px;
+}
+
+.operation-pane {
+	background-color: #cccccc;
+	margin-top: 10px;
+	margin-bottom: 10px;
+	padding: 10px;
+	border-radius: 3px;
+}
+
+</style>
+</head>
+<body>
+<div class="container">
+	<div class="header-title">
+		<img class="logo" src="logo_short_export.svg" />
+	</div>
+	<div class="tabbar">
+		<div class="tab" style="background-color:#444444;">Filter</div>
+		<div class="tab">Apply</div>
+		<div class="spacer"></div>
+		<div class="tab">Settings</div>
+	</div>
+	<div class="filter-body" >
+		<div class="caption">Filter Query</div>
+		<div class="filter-bar" contenteditable="true">My Doc:*</div>
+		<div class="button-bar-set">
+			<div class="button-bar darkgreen">
+				<div class="button">
+					Filenames
+				</div>
+				<div class="button">
+					file Contents
+				</div>
+			</div>
+
+			<div class="button-bar">
+				<div class="button">
+					Local
+				</div>
+				<div class="button">
+					FTP
+				</div>
+				<div class="button">
+					SFTP
+				</div>
+				<div class="button">
+					WebDAV
+				</div>
+			</div>
+
+			<div class="spacer"> </div>
+
+			<div class="button-bar darkblue">
+				<div class="button">
+					Basic
+				</div>
+				<div class="button">
+					Glob
+				</div>
+				<div class="button">
+					Regex
+				</div>
+			</div>
+		</div>
+
+		<div class="vertical-spacer"> </div>
+
+		<div class="section-box">
+			<div class="caption">Filter Locations</div>
+			<div class="spacer"></div>
+			<div class="button-bar darkorange">
+				<div class="button">Clear All</div>
+				<div class="button">Add</div>
+			</div>
+		</div>
+
+		<div class="path-item-box">
+			<div class="path-item">/home/user/Documents</div>
+			<div class="path-item">/home/user/Downloads</div>
+			<div class="path-item">/home/user/Uploads/sent</div>
+		</div>
+
+		<div class="vertical-spacer"> </div>
+
+		<div class="caption">Results [4]</div>
+		<div class="results-bar">
+			<div class="result">
+				<div class="title">My Doc: First.doc</div>
+				<div class="path">/home/user/Documents/work</div>
+			</div>
+			<div class="result">
+				<div class="title">My Doc: Second.doc</div>
+				<div class="path">/home/user/Documents/work</div>
+			</div>
+			<div class="result">
+				<div class="title">My Doc: Third.doc</div>
+				<div class="path">/home/user/Documents/work</div>
+			</div>
+			<div class="result">
+				<div class="title">My Doc: First Draft.doc</div>
+				<div class="path">/home/user/Documents/work/backup</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="apply-body" style="display:none;">
+		<div class="apply-head-caption">
+			Operating on 4 files.
+		</div>
+
+		<div class="apply-body-content">
+			<div class="caption">Operation</div>
+			<select class="operation-select">
+				<option>Copy</option>
+				<option>Move</option>
+				<option>Rename</option>
+				<option>Concatenate</option>
+			</select>
+
+			<div class="operation-pane">
+				<b>Copy Location:</b>
+				<div class="filter-bar" contenteditable="true">
+					/home/user/Publish/
+				</div>
+			</div>
+
+			<div class="button-bar-set">
+				<div class="spacer"> </div>
+				<div class="button-bar darkblue">
+					<div class="button" style="font-size: 12px; padding: 5px">
+						Apply
+					</div>
+				</div>
+			</div>
+
+			<div class="caption">Preview</div>
+
+			<div class="results-bar">
+				<div class="result">
+					<div class="title">My Doc: First.doc</div>
+					<div class="path">/home/user/Publish/work/My Doc: First.doc</div>
+				</div>
+				<div class="result">
+					<div class="title">My Doc: Second.doc</div>
+					<div class="path">/home/user/Publish/work/My Doc: Second.doc</div>
+				</div>
+				<div class="result">
+					<div class="title">My Doc: Third.doc</div>
+					<div class="path">/home/user/Publish/work/My Doc: Third.doc</div>
+				</div>
+				<div class="result">
+					<div class="title">My Doc: First Draft.doc</div>
+					<div class="path">/home/user/Publish/work/My Doc: First Draft.doc</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>
