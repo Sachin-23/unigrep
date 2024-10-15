@@ -10,6 +10,7 @@ This project is made in:
 * react
 * pandas
 
+We will add many features
 We will add features like:
 * Searching for files
 * Searching within files
