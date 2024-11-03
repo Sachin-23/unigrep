@@ -1,0 +1,83 @@
+.filter-location-body {
+    padding: 10px;
+  }
+.path-item-remove {
+    cursor: pointer;
+    margin-left: 5px;
+    font-size: 10px;
+    color: red;
+  }
+  .section-box {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+}
+
+.section-box .caption {
+	margin-bottom: 0;
+}
+
+.path-item-box {
+	display: flex;
+	flex-direction: column;
+	gap: 5px;
+	margin-top: 10px;
+	margin-bottom: 10px;
+}
+
+.path-item {
+	border-radius: 3px;
+	font-family: monospace;
+	background-color: white;
+	border: 1px solid grey;
+	padding: 5px;
+	font-size: 12px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.path-item:after {
+	content: "x";
+	position: relative;
+	display: block;
+	float: right;
+	font-size: 10px;
+	width: 15px;
+	height: 13px;
+	border-radius: 5px;
+	border: 1px solid black;
+	vertical-align: middle;
+	text-align: center;
+	background-color: #f3f3f3;
+}
+
+.apply-head-caption {
+	font-weight: bold;
+	padding: 5px;
+	color: white;
+	font-size: 10px;
+	background-color: #666666;
+}
+
+.operation-select {
+	width: 100%;
+	border: 1px solid black;
+	font-size: 14px;
+	font-weight: bold;
+	border-radius: 3px;
+	background-color: #e8f5ff;
+	padding: 5px;
+}
+
+.operation-select option {
+	padding: 5px;
+}
+
+.operation-pane {
+	background-color: #cccccc;
+	margin-top: 10px;
+	margin-bottom: 10px;
+	padding: 10px;
+	border-radius: 3px;
+}
+  

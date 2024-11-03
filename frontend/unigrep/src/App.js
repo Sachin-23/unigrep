@@ -1,10 +1,18 @@
 import logo from './logo.svg';
+import Header from './components/Header/Header';
+import FilterQuery from './components/FilterQuery/FilterQuery';
 import './App.css';
+import FilterLocations from './components/FilterLocations/FilterLocations';
 
 function App() {
   return (
     <div className="App">
-      <header className="App-header">
+      <div className='container'>
+        <Header />
+        <FilterQuery />
+        <FilterLocations/>
+      </div>
+      {/* <header className="App-header">
         <img src={logo} className="App-logo" alt="logo" />
         <p>
           Edit <code>src/App.js</code> and save to reload.
@@ -17,7 +25,7 @@ function App() {
         >
           Learn React
         </a>
-      </header>
+      </header> */}
     </div>
   );
 }
