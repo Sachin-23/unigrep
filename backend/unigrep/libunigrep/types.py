@@ -1,80 +1,68 @@
+from ctypes import ArgumentError
+from inspect import Arguments
 from pathlib import Path
+import re
+import shutil
 import pandas as pd
 import zipfile
-from typing import Iterable, List
+import fnmatch
+from typing import Iterable, List, TextIO
+
+from sqlalchemy import false
 
 SUPPORTED_DOMAINS: List[str] = [
     "local",
     "ssh"
 ]
 
+def new_result_set() -> pd.DataFrame:
+    return pd.DataFrame(columns = [
+        "path",
+        "match_type",
+        "matched_on",
+        "matched_on_type",
+        "domain",
+    ])
+
+def append_to_result(frame: pd.DataFrame,
+    path: str | None = None,
+    match_type: str | None = None,
+    matched_on: str | None = None,
+    matched_on_type: str | None = None,
+    domain: str | None = None):
+    if not path or not match_type or not matched_on or not domain:
+        raise ValueError("Arguments cannot be null.")
+    frame.loc[len(frame)] = {
+        "path": path,
+        "match_type": match_type,
+        "matched_on": matched_on,
+        "matched_on_type": matched_on_type,
+        "domain": domain,
+    }
+
+
 ##
 ## Stores the information about a query
 ##
 class Query:
     def __init__(self,
-            search_types: List[str]      = [ "filenames" ],
+            search_type: str             = "filenames",
             search_domain: str           = "local",
             search_locations: List[str]  = [ "/" ],
             search_query: str            = "",
             search_query_type: str       = "glob"
         ) -> None:
-        self.search_types      = search_types
+        self.search_type       = search_type
         self.search_domain     = search_domain
         self.search_locations  = search_locations
         self.search_query      = search_query
         self.search_query_type = search_query_type
 
-    def run_query(self):
-        pass
-
 class File:
-    def __init__(self, domain: str, path: str):
+    def __init__(self, domain: str, path: str, file_object: TextIO):
         self.file: Path  = Path(path)
         self.domain: str = domain
-
-
-    ##
-    ## Gets the contents of the entire file.
-    ##
-    ## :returns:   The full file
-    ## :rtype:     bytes
-    ##
-    def get_full(self) -> bytes:
-        raise NotImplementedError()
-
-    ##
-    ## Gets the first n bytes from the file
-    ##
-    ## :returns:   The n.
-    ## :rtype:     str
-    ##
-    def get_n(self, n: int) -> str:
-        raise NotImplementedError()
-
-    ##
-    ## Deletes the file.
-    ##
-    def delete(self) -> None:
-        raise NotImplementedError()
-
-##
-## This class is returned after a query is completed.
-##
-class QueryResponse:
-    @staticmethod
-    def new_response_df() -> pd.DataFrame:
-        return pd.DataFrame(columns = pd.Series([
-            "domain",
-            "file_path",
-            "match_type"
-        ]))
-
-    def __init__(self):
-        self.response_df = None
-
-    def get_file_list(self) -> List[File]:
-        raise NotImplementedError()
+        self.file_object = file_object
 
 ##
 ## Abstract "Driver" class that actually performs a query and reads a file.
@@ -101,12 +89,191 @@ class Driver:
     ##
     def search(self, query: Query) -> pd.DataFrame:
         raise NotImplementedError()
-        return pd.DataFrame()
 
+    def open_file(self, path: Path | str) -> File:
+        raise NotImplementedError()
 ##
 ## Implements a driver for a local filesystem
 ##
 class LocalDriver(Driver):
+    def search(self, query: Query) -> pd.DataFrame:
+        result = new_result_set()
+
+        if query.search_domain != "local":
+            raise ValueError("Domain is not 'local'")
+
+        if query.search_type == "filenames":
+            for location in query.search_locations:
+                if query.search_query_type == "glob":
+                    locpath = Path(location)
+                    files = locpath.rglob(query.search_query)
+                    for file in files:
+                        append_to_result(result,
+                            path = str(file),
+                            match_type = "filenames",
+                            matched_on = query.search_query,
+                            matched_on_type = "glob",
+                            domain = "local")
+
+                elif query.search_query_type == "regex":
+                    locpath = Path(location)
+                    regex = re.compile(query.search_query)
+                    files = locpath.rglob("*")
+                    for file in files:
+                        if regex.search(str(file)):
+                            append_to_result(result,
+                                path = str(file),
+                                match_type = "filenames",
+                                matched_on = query.search_query,
+                                matched_on_type = "regex",
+                                domain = "local")
+                else:
+                    raise ValueError("Unknown search query type")
+        elif query.search_type == "filecontents":
+            for location in query.search_locations:
+                if query.search_query_type == "glob":
+                    locpath = Path(location)
+                    files = locpath.rglob("*")
+                    for file in files:
+                        if not file.is_file():
+                            continue
+                        with open(file, "r") as fh:
+                            for line in fh:
+                                if fnmatch.fnmatch(line, query.search_query):
+                                    append_to_result(result,
+                                        path = str(file),
+                                        match_type = "filecontents",
+                                        matched_on = query.search_query,
+                                        matched_on_type = "glob",
+                                        domain = "local")
+                                    break
+
+                elif query.search_query_type == "regex":
+                    locpath = Path(location)
+                    regex = re.compile(query.search_query)
+                    files = locpath.rglob("*")
+                    for file in files:
+                        if not file.is_file():
+                            continue
+                        with open(file, "r") as fh:
+                            for line in fh:
+                                if regex.search(str(line)):
+                                    append_to_result(result,
+                                        path = str(file),
+                                        match_type = "filecontents",
+                                        matched_on = query.search_query,
+                                        matched_on_type = "regex",
+                                        domain = "local")
+                                    break
+                else:
+                    raise ValueError("Unknown search query type")
+        else:
+            raise ValueError("Unknown search type")
+
+        return result
+
+    def open_file(self, path: Path | str) -> File:
+        return File(
+            domain = "local",
+            path = str(path),
+            file_object = open(path, "r")
+        )
+
+    def copy(self, src: Path | str, dest: Path | str):
+        shutil.copy2(src, dest)
+
+    def move(self, src: Path | str, dest: Path | str):
+        shutil.move(src, dest)
+
+    def delete(self, src: Path | str):
+        Path(src).unlink()
+
+
+class FTPDriver(Driver):
+    def search(self, query: Query) -> pd.DataFrame:
+        result = new_result_set()
+
+        if query.search_domain != "ftp":
+            raise ValueError("Domain is not 'ftp'")
+
+        if query.search_type == "filenames":
+            for location in query.search_locations:
+                if query.search_query_type == "glob":
+                    locpath = Path(location)
+                    files = locpath.rglob(query.search_query)
+                    for file in files:
+                        append_to_result(result,
+                            path = str(file),
+                            match_type = "filenames",
+                            matched_on = query.search_query,
+                            matched_on_type = "glob",
+                            domain = "local")
+
+                elif query.search_query_type == "regex":
+                    locpath = Path(location)
+                    regex = re.compile(query.search_query)
+                    files = locpath.rglob("*")
+                    for file in files:
+                        if regex.search(str(file)):
+                            append_to_result(result,
+                                path = str(file),
+                                match_type = "filenames",
+                                matched_on = query.search_query,
+                                matched_on_type = "regex",
+                                domain = "local")
+                else:
+                    raise ValueError("Unknown search query type")
+        elif query.search_type == "filecontents":
+            for location in query.search_locations:
+                if query.search_query_type == "glob":
+                    locpath = Path(location)
+                    files = locpath.rglob("*")
+                    for file in files:
+                        with open(file, "r") as fh:
+                            if not file.is_file():
+                              continue
+                            for line in fh:
+                                if fnmatch.fnmatch(line, query.search_query):
+                                    append_to_result(result,
+                                        path = str(file),
+                                        match_type = "filecontents",
+                                        matched_on = query.search_query,
+                                        matched_on_type = "glob",
+                                        domain = "local")
+                                    break
+
+                elif query.search_query_type == "regex":
+                    locpath = Path(location)
+                    regex = re.compile(query.search_query)
+                    files = locpath.rglob("*")
+                    for file in files:
+                        if not file.is_file():
+                            continue
+                        with open(file, "r") as fh:
+                            for line in fh:
+                                if regex.search(str(line)):
+                                    append_to_result(result,
+                                        path = str(file),
+                                        match_type = "filecontents",
+                                        matched_on = query.search_query,
+                                        matched_on_type = "regex",
+                                        domain = "local")
+                                    break
+                else:
+                    raise ValueError("Unknown search query type")
+        else:
+            raise ValueError("Unknown search type")
+
+        return result
+
+    def open_file(self, path: Path | str) -> File:
+        return File(
+            domain = "local",
+            path = str(path),
+            file_object = open(path, "r")
+        )
+
+class SSHDriver(Driver):
     pass
 
 ##
@@ -119,7 +286,21 @@ class LocalDriver(Driver):
 ## :rtype:     str
 ##
 def get_domain_from_location(location: str) -> str:
-    raise NotImplementedError()
+    regex = re.compile(r"^(([A-Za-z]+)\:)?.*$")
+
+    match = regex.match(location)
+
+    if not match:
+        return "empty"
+
+    if match[2] == "file" or match[2] == "local":
+        return "local"
+    elif match[2] == "ftp":
+        return "ftp"
+    elif match[2] == "sftp" or match[2] == "ssh":
+        return "ssh"
+    else:
+        return "invalid"
 
 ##
 ## Makes a zip file out of a listing.
@@ -132,3 +313,17 @@ def get_domain_from_location(location: str) -> str:
 ##
 def make_zip(files: Iterable[File]) -> zipfile.ZipFile:
     raise NotImplementedError()
+
+def _test():
+    s = LocalDriver()
+    result = s.search(Query(
+        search_locations=[ "/tmp/a" ],
+        search_type="filecontents",
+        search_query="flash_*",
+        search_query_type="glob"
+    ))
+
+    print(result)
+
+
+_test()
