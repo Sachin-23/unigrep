@@ -324,8 +324,8 @@ class SSHDriver(Driver):
     def search(self, query: Query) -> pd.DataFrame:
         result = new_result_set()
 
-        if query.search_domain != "ftp":
-            raise ValueError("Domain is not 'ftp'")
+        if query.search_domain != "ssh":
+            raise ValueError("Domain is not 'ssh'")
 
         ssh = paramiko.SSHClient()
         ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
@@ -442,5 +442,20 @@ def make_zip(files: Iterable[File]) -> zipfile.ZipFile:
 
 #     print(result)
 
+# def _test():
+#     s = SSHDriver()
+#     result = s.search(Query(
+#         search_locations=[ "/" ],
+#         search_domain= "ssh",
+#         search_type="filenames",
+#         search_query="*",
+#         search_query_type="glob",
+#         root_address="",
+#         auth_username="",
+#         auth_password="",
+#     ))
+# 
+#     print("hello", result)
 
-# _test()
+
+_test()
