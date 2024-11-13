@@ -1,31 +1,51 @@
-import logo from './logo.svg';
+import React, { useState } from 'react';
 import Header from './components/Header/Header';
 import FilterQuery from './components/FilterQuery/FilterQuery';
-import './App.css';
 import FilterLocations from './components/FilterLocations/FilterLocations';
+import Results from './components/Results/Results';
+// Import the ApplyTab component, which we'll create next
+import ApplyTab from './components/ApplyTab/ApplyTab';
 
 function App() {
+  const [activeTab, setActiveTab] = useState("filter");
+
+  // Function to toggle tabs
+  const toggleTab = (tab) => {
+    setActiveTab(tab);
+  };
+
   return (
-    <div className="App">
-      <div className='container'>
-        <Header />
-        <FilterQuery />
-        <FilterLocations/>
-      </div>
-      {/* <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
+    <div>
+      <Header />
+
+      {/* Tab Buttons */}
+      <div className="tabbar">
+        <div
+          className={`tab ${activeTab === "filter" ? "active-tab" : ""}`}
+          onClick={() => toggleTab("filter")}
         >
-          Learn React
-        </a>
-      </header> */}
+          Filter
+        </div>
+        <div
+          className={`tab ${activeTab === "apply" ? "active-tab" : ""}`}
+          onClick={() => toggleTab("apply")}
+        >
+          Apply
+        </div>
+        <div className="spacer"></div>
+        <div className="tab">Settings</div>
+      </div>
+
+      {/* Conditional Rendering of Tabs */}
+      {activeTab === "filter" ? (
+        <>
+          <FilterQuery />
+          <FilterLocations />
+          <Results />
+        </>
+      ) : (
+        <ApplyTab />
+      )}
     </div>
   );
 }

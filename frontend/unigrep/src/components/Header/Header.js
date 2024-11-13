@@ -7,12 +7,12 @@ function Header() {
       <div className="header-title">
       <SVG/>
       </div>
-      <div className="tabbar">
+      {/* <div className="tabbar">
         <div className="tab" style={{ backgroundColor: '#444444' }}>Filter</div>
         <div className="tab">Apply</div>
         <div className="spacer"></div>
         <div className="tab">Settings</div>
-      </div>
+      </div> */}
     </div>
   );
 }

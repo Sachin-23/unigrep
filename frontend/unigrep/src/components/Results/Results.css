@@ -1,0 +1,31 @@
+.results-container {
+    padding: 10px;
+  }
+  
+  .caption {
+    color: #999999;
+    text-transform: uppercase;
+    font-size: small;
+    margin-bottom: 10px;
+  }
+  
+  .results-bar {
+    border: 1px solid #444444;
+    padding: 10px;
+    background-color: white;
+  }
+  
+  .result {
+    margin-bottom: 10px;
+    font-size: small;
+  }
+  
+  .result .title {
+    font-weight: bold;
+  }
+  
+  .result .path {
+    color: grey;
+    font-style: italic;
+  }
+  
