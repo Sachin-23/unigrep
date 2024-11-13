@@ -9,6 +9,7 @@ import fnmatch
 from ftputil import FTPHost
 from marshmallow import Schema, fields
 from typing import Iterable, List, TextIO, Tuple
+import paramiko
 
 SUPPORTED_DOMAINS: List[str] = [
     "local",
@@ -311,7 +312,84 @@ class FTPDriver(Driver):
         )
 
 class SSHDriver(Driver):
-    pass
+    @staticmethod
+    def match_name(search_query_type: str, pattern, regex, value: str) -> bool:
+        if search_query_type == "regex":
+            return regex.search(value)
+        elif search_query_type == "glob":
+            return fnmatch.fnmatch(value, pattern)
+        else:
+            raise ValueError("Unknown search type")
+
+    def search(self, query: Query) -> pd.DataFrame:
+        result = new_result_set()
+
+        if query.search_domain != "ftp":
+            raise ValueError("Domain is not 'ftp'")
+
+        ssh = paramiko.SSHClient()
+        ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+        sftp = None
+
+        try:
+            if query.auth_username != None and query.auth_password != None and query.root_address != None:
+                ssh.connect(hostname=query.root_address, username=query.auth_username, password=query.auth_password)
+                sftp = ssh.open_sftp()
+        except Exception as e:
+            raise ValueError("Failed while connecting to SSH", e)
+
+        regex = None
+        if query.search_query_type == "regex":
+            regex = re.compile(query.search_query)
+
+        if query.search_type == "filenames":
+            for location in query.search_locations:
+                stack: List[Tuple[str, int]] = []
+                stack.append((location, 1))
+                print(f"Traversing: {location}")
+                while len(stack) > 0:
+                    location, depth = stack.pop()
+                    if depth > query.recursion_depth or depth > RECURSION_DEPTH_HARD_LIMIT:
+                        continue
+                    try:
+                        sftp.chdir(location)
+                    except Exception as e:
+                        print(f"Location {location} cannot be accessed.")
+                        continue
+
+                    files = []
+
+                    try:
+                        files = sftp.listdir_attr(location)
+                    except Exception as e:
+                        print(f"Cannot list files at {location}")
+                        continue
+
+                    for file in files:
+                        if str(file)[0] in ['d', 'l']:
+                            print(f"Adding dir: {file}")
+                            stack.append((
+                                str(location + "/" + str(file)),
+                                depth + 1))
+                        elif self.match_name(
+                            query.search_query_type,
+                            query.search_query,
+                            regex,
+                            str(file)):
+                            print(f"Adding file: {file}")
+                            append_to_result(result,
+                                path = location + "/" + str(file),
+                                match_type = "filenames",
+                                matched_on = query.search_query,
+                                matched_on_type = query.search_query_type,
+                                domain = "sftp",
+                                address = query.root_address)
+        elif query.search_type == "filecontents":
+            raise NotImplementedError("Sorry, SSH File content searching is not implemented.")
+        else:
+            raise ValueError("Unknown search type")
+
+        return result
 
 ##
 ## Gets the domain from a location string
