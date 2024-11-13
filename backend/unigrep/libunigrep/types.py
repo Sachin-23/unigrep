@@ -53,7 +53,7 @@ class ResultSchema(Schema):
     results = fields.List(fields.Str())
 
 def result_to_json(frame: pd.DataFrame) -> str:
-    ret = frame.to_json()
+    ret = frame["path", "domain", "address"].to_json()
     if ret == None:
         raise RuntimeError("Internal Error: result dataframe is null")
     return ret
@@ -258,7 +258,7 @@ class FTPDriver(Driver):
             for location in query.search_locations:
                 stack: List[Tuple[str, int]] = []
                 stack.append((location, 1))
-                #print(f"Traversing: {location}")
+                print(f"Traversing: {location}")
                 while len(stack) > 0:
                     location, depth = stack.pop()
                     if depth > query.recursion_depth or depth > RECURSION_DEPTH_HARD_LIMIT:
@@ -279,7 +279,7 @@ class FTPDriver(Driver):
 
                     for file in files:
                         if ftp.path.isdir(file):
-                            #print(f"Adding dir: {file}")
+                            print(f"Adding dir: {file}")
                             stack.append((
                                 str(location + "/" + str(file)),
                                 depth + 1))
@@ -288,7 +288,7 @@ class FTPDriver(Driver):
                             query.search_query,
                             regex,
                             str(file)):
-                            #print(f"Adding file: {file}")
+                            print(f"Adding file: {file}")
                             append_to_result(result,
                                 path = location + "/" + str(file),
                                 match_type = "filenames",
