@@ -36,17 +36,16 @@ const Tab1 = () => {
 
 
     const [locations, setLocations] = useState([
-        '/home/user/Documents',
-        '/home/user/Downloads',
-        '/home/user/Uploads/sent',
-    ]);
-
+        "/home/user/preet",
+        "/home/user/Downloads",
+        "/home/user/Uploads/sent",
+      ]);
     const handleSearch = async () => {
         // Build the request body based on input fields and selected radio buttons
         const msg = {
             search_types: [selectedFileType], // Static value for now, can be dynamic if needed
             search_domains: [selectedConnection], // Based on selected radio button for connection
-            search_locations: [locations], // Static values for now
+            search_locations: locations, // Static values for now
             search_query: inputValue, // Value from the search input
             search_query_type: selectedMode, // Regex or Blob from the radio button
         };

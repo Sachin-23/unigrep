@@ -3,9 +3,9 @@ import './FilterLocations.css'; // Assuming your CSS is in this file
 
 const FilterLocations = () => {
   const [locations, setLocations] = useState([
-    '/home/user/Documents',
-    '/home/user/Downloads',
-    '/home/user/Uploads/sent',
+    "/home/user/Documents",
+    "/home/user/Downloads",
+    "/home/user/Uploads/sent",
   ]);
 
   const handleAddLocation = () => {

@@ -44,10 +44,10 @@ export const performSearch = async (msg) => {
       },
     });
 
-    if (response.statuscode === 200) {
-      return response.result_set; // Return the search result
+    if (response.status === 200) {
+
+      return response.data.result_set; // Return the search result
     } else {
-        console.log(response)
       throw new Error('Failed to fetch data');
     }
   } catch (error) {
