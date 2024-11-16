@@ -1,0 +1,68 @@
+.filter-body {
+    padding: 10px;
+  }
+  
+  .caption {
+    color: #999999;
+    text-transform: uppercase;
+    font-size: small;
+    margin-bottom: 10px;
+  }
+  
+  .filter-bar {
+    font-size: 12px;
+    font-family: monospace;
+    border: 1px solid grey;
+    padding: 5px;
+    margin: 5px 0;
+    border-radius: 3px;
+    box-shadow: 0px 2px 0px 0px rgba(0, 0, 0, 0.45);
+    background-color: white;
+  }
+  
+  .button-bar-set {
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+  }
+  
+  .button-bar {
+    display: flex;
+    gap: 0;
+    background-color: maroon;
+    box-shadow: 0px 2px 0px 0px rgba(0, 0, 0, 0.45);
+    flex-direction: row;
+    border-radius: 3px;
+  }
+  
+  .button-bar .button {
+    padding: 5px;
+    color: white;
+    border-right: 1px solid #eeeeee;
+    cursor: pointer;
+    text-transform: uppercase;
+    font-weight: bold;
+    font-size: 10px;
+  }
+  
+  .button-bar .button:last-child {
+    border-top-right-radius: 3px;
+    border-bottom-right-radius: 3px;
+    border-right: none;
+  }
+  
+  .button-bar .button:first-child {
+    border-top-left-radius: 3px;
+    border-bottom-left-radius: 3px;
+  }
+  
+  .darkgreen {
+    background-color: darkolivegreen;
+  }
+  
+  .darkblue {
+    background-color: darkslateblue;
+  }
+  

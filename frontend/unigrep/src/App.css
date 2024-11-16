@@ -1,3 +1,11 @@
+.container {
+  max-width: 1024px;
+  margin: auto;
+  text-align: justify;
+  font-family: sans-serif;
+  background: #f2f2f2;
+}
+
 .App {
   text-align: center;
 }
@@ -5,6 +13,34 @@
 .App-logo {
   height: 40vmin;
   pointer-events: none;
+}
+.tabbar {
+  display: flex;
+  flex-direction: row;
+  align-items: left;
+  gap: 10px;
+  padding-left: 5px;
+  padding-right: 5px;
+  padding-top: 5px;
+  background-color: #dddddd;
+  border-bottom: 2px solid #666666;
+}
+
+.tab {
+  border-top-left-radius: 3px;
+  border-top-right-radius: 3px;
+  margin-bottom: 0;
+  padding: 5px;
+  background-color: #666666;
+  color: white;
+  font-size: 12px;
+  font-weight: bold;
+  cursor: pointer;
+  text-transform: uppercase;
+}
+
+.active-tab {
+  background-color: #444444; /* Active tab color */
 }
 
 @media (prefers-reduced-motion: no-preference) {
