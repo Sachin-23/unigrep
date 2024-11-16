@@ -13,7 +13,8 @@ import paramiko
 
 SUPPORTED_DOMAINS: List[str] = [
     "local",
-    "ssh"
+    "ftp",
+    "ssh",
 ]
 
 # DomainEnum = Enum("local", "ftp", "ssh")
@@ -59,38 +60,41 @@ def result_to_json(frame: pd.DataFrame) -> str:
         raise RuntimeError("Internal Error: result dataframe is null")
     return ret
 
-
 ##
 ## Stores the information about a query
 ##
-class Query:
-    def __init__(self,
-            search_type: str             = "filenames",
-            search_domain: str           = "local",
-            root_address: str            = "",
-            search_locations: List[str]  = [ "/" ],
-            search_query: str            = "",
-            search_query_type: str       = "glob",
-            recursion_depth: int         = 5,
-            auth_username: str | None    = None,
-            auth_password: str | None    = None,
-        ) -> None:
-        self.search_type       = search_type
-        self.search_domain     = search_domain
-        self.search_locations  = search_locations
-        self.search_query      = search_query
-        self.search_query_type = search_query_type
-        self.root_address      = root_address
-        self.recursion_depth   = recursion_depth
-        self.auth_username     = auth_username
-        self.auth_password     = auth_password
+# class Query:
+#     def __init__(self,
+#             search_type: str             = "filenames",
+#             search_domain: str           = "local",
+#             root_address: str            = "",
+#             search_locations: List[str]  = [ "/" ],
+#             search_query: str            = "",
+#             search_query_type: str       = "glob",
+#             recursion_depth: int         = 5,
+#             auth_username: str | None    = None,
+#             auth_password: str | None    = None,
+#         ) -> None:
+#         self.search_type       = search_type
+#         self.search_domain     = search_domain
+#         self.search_locations  = search_locations
+#         self.search_query      = search_query
+#         self.search_query_type = search_query_type
+#         self.root_address      = root_address
+#         self.recursion_depth   = recursion_depth
+#         self.auth_username     = auth_username
+#         self.auth_password     = auth_password
 
 class QuerySchema(Schema):
-    search_type       = fields.Str()
-    search_domain     = fields.Str()
-    search_locations  = fields.List(fields.Str())
-    search_query      = fields.Str()
-    search_query_type = fields.Str()
+    search_type         = fields.Str()
+    search_domain       = fields.Str()
+    search_locations    = fields.List(fields.Str())
+    search_query        = fields.Str()
+    search_query_type   = fields.Str()
+    root_address        = fields.Str(allow_none=True)
+    recursion_depth     = fields.Int(allow_none=True, default=5)
+    auth_username       = fields.Str(allow_none=True)
+    auth_password       = fields.Str(allow_none=True)
 
 class File:
     def __init__(self, domain: str, path: str, file_object: TextIO):
@@ -121,7 +125,7 @@ class Driver:
     ## :raises     NotImplementedError:  This is an abstract class. Use the
     ##             derived classes.
     ##
-    def search(self, query: Query) -> pd.DataFrame:
+    def search(self, query: QuerySchema) -> pd.DataFrame:
         raise NotImplementedError()
 
     def open_file(self, path: Path | str) -> File:
@@ -130,7 +134,7 @@ class Driver:
 ## Implements a driver for a local filesystem
 ##
 class LocalDriver(Driver):
-    def search(self, query: Query) -> pd.DataFrame:
+    def search(self, query: QuerySchema) -> pd.DataFrame:
         result = new_result_set()
 
         if query.search_domain != "local":
@@ -238,7 +242,7 @@ class FTPDriver(Driver):
         else:
             raise ValueError("Unknown search type")
 
-    def search(self, query: Query) -> pd.DataFrame:
+    def search(self, query: QuerySchema) -> pd.DataFrame:
         result = new_result_set()
 
         if query.search_domain != "ftp":
@@ -321,7 +325,7 @@ class SSHDriver(Driver):
         else:
             raise ValueError("Unknown search type")
 
-    def search(self, query: Query) -> pd.DataFrame:
+    def search(self, query: QuerySchema) -> pd.DataFrame:
         result = new_result_set()
 
         if query.search_domain != "ssh":
@@ -453,9 +457,9 @@ def make_zip(files: Iterable[File]) -> zipfile.ZipFile:
 #         root_address="",
 #         auth_username="",
 #         auth_password="",
-#     ))
-# 
+#         ))
+#
 #     print("hello", result)
-
-
-_test()
+#
+#
+# _test()

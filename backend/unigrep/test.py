@@ -2,8 +2,8 @@ import requests
 import json
 
 msg = { 
-       "search_types": ["within_files"],
-       "search_domains": ["local"],
+       "search_type": "filenames",
+       "search_domain": "local",
        "search_locations":  ["/home/documents/1", "/home/documents/2"], 
        "search_query": "File.*a.doc",
        "search_query_type": "regex"

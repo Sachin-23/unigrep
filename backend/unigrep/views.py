@@ -2,16 +2,40 @@ from django.shortcuts import render
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 import json
-from jsonschema import validate
-from unigrep.schemas import searchReqSchema, applyReqSchema
+
+# from jsonschema import validate
+# from unigrep.schemas import searchReqSchema, applyReqSchema
+
+from marshmallow import Schema, fields
+
+from .libunigrep.types import QuerySchema
+from .libunigrep.types import LocalDriver, FTPDriver, SSHDriver
+from .libunigrep.types import result_to_json
 
 # Create your views here.
 @csrf_exempt
 def search(request):
     '''Search regex pattern in the provided path'''
+
     try:
         msg = json.loads(request.body)
-        validate(msg, schema=searchReqSchema)
+        print("DBG Request: ", msg)
+        query = QuerySchema.from_dict(msg) 
+
+        match query.search_domain:
+            case "local":
+                driver = LocalDriver()
+            case "ftp":
+                driver = FTPDriver()
+            case "sftp": # NOTE: Change this to SFTP or SSH
+                driver = SSHDriver()
+            case _:
+                raise ValueError(f"Driver not defined for {query.search_query_type}.")
+
+        result = result_to_json(driver.search(query))
+        print(result)
+        print("DBG: ", query, type(query))
+         
     except Exception as e:
         return JsonResponse({"Error": str(e)})
 
