@@ -1,7 +1,8 @@
 from django.shortcuts import render
-from django.http import JsonResponse
+from django.http import HttpResponse, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 import json
+import traceback
 
 # from jsonschema import validate
 # from unigrep.schemas import searchReqSchema, applyReqSchema
@@ -17,10 +18,12 @@ from .libunigrep.types import result_to_json
 def search(request):
     '''Search regex pattern in the provided path'''
 
+    result = {}
+
     try:
         msg = json.loads(request.body)
         print("DBG Request: ", msg)
-        query = QuerySchema.from_dict(msg) 
+        query = QuerySchema.from_dict(msg)
 
         match query.search_domain:
             case "local":
@@ -32,38 +35,21 @@ def search(request):
             case _:
                 raise ValueError(f"Driver not defined for {query.search_query_type}.")
 
-        result = result_to_json(driver.search(query))
+        data = driver.search(query)
+        print(data)
+        result = result_to_json(data)
         print(result)
         print("DBG: ", query, type(query))
          
+    except json.JSONDecodeError as e:
+        return JsonResponse({"Error": f"Invalid JSON supplied: {e}" })
+
     except Exception as e:
+        print(traceback.format_exc())
         return JsonResponse({"Error": str(e)})
 
-    noError = True
-    '''...processing...'''
-    dummyRes = {
-            "status": "ok",
-            "statuscode": "200",
-            "result_set": [
-                {
-                    "source": { "domain": "local", "address": "/" },
-                    "result": [
-                        { "match_type": "filename", "path": "/home/documents/1/File1a.doc"},
-                        { "match_type": "filename", "path": "/home/documents/1/File2a.doc"}
-                        ]
-                    },
-                {
-                    "source": { "domain": "ftp", "address": "ftp://ftp.iitb.ac.in/" },
-                    "result": [
-                        { "match_type": "filename", "path": "/home/documents/1/File1a.doc"}
-                        ]
-                    },
-                ]
-            }
-    if noError:
-        return JsonResponse(dummyRes)
-    else:
-        return JsonResponse({"Error": "Dummy Error"})
+    return HttpResponse(result, content_type='application/json')
+
 
 @csrf_exempt
 def apply(request):

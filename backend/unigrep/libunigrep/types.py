@@ -55,7 +55,7 @@ class ResultSchema(Schema):
     results = fields.List(fields.Str())
 
 def result_to_json(frame: pd.DataFrame) -> str:
-    ret = frame["path", "domain", "address"].to_json()
+    ret = frame[["path", "domain", "address"]].to_json()
     if ret == None:
         raise RuntimeError("Internal Error: result dataframe is null")
     return ret
