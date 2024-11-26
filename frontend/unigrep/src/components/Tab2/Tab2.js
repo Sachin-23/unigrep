@@ -7,7 +7,7 @@ import { performApply } from '../utils/Apply';
 
 const Tab2 = () => {
   const { selectedFileType, selectedConnection, selectedMode, searchResult, root, username, password } = useTabState();
-  const [operation, setOperation] = useState(selectedConnection === "ftp" ? "download" : "delete");
+  const [operation, setOperation] = useState(selectedConnection === "local" ? "delete" : "download");
   const [location, setLocation] = useState("/destination/location");
   const handleOperationChange = (e) => {
     setOperation(e.target.value);
