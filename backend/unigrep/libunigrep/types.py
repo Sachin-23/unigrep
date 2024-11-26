@@ -226,12 +226,16 @@ class LocalDriver(Driver):
 
         return result
 
-    def open_file(self, path: Path | str) -> File:
-        return File(
-            domain = "local",
-            path = str(path),
-            file_object = open(path, "r")
-        )
+    def download(self, files: Iterable[Path | str]) -> HttpResponse:
+        response = HttpResponse(content_type='application/octet-stream')
+        response['Content-Disposition'] = 'attachment; filename="files.zip"'
+        z = zipfile.ZipFile(response, "w")
+
+        for file in files:
+            z.write(file, os.path.basename(file))
+
+        z.close()
+        return response
 
     def copy(self, src: Path | str, dest: Path | str):
         shutil.copy2(src, dest)
@@ -517,6 +521,13 @@ def process_apply(params: ApplySchema):
                 print(f"Delete {src_path}")
                 log_text += f"Delete {src_path}\n"
                 LocalDriver().delete(src_path)
+        elif params.operation == "run_command":
+            p = pd.DataFrame(params.result_set)
+            for src_path in p["path"]:
+                print(f"Run command {src_path}")
+        elif params.operation == "download":
+            p = pd.DataFrame(params.result_set)
+            return LocalDriver().download(p["path"])
         else:
             raise ValueError("Unknown Operation on Local")
     elif params.search_domain == "ftp":

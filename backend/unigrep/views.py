@@ -64,10 +64,15 @@ def apply(request):
     except Exception as e:
         return JsonResponse({"Error": str(e)})
 
-    log_text = process_apply(applydata)
+    if applydata.operation == "download":
+        file = process_apply(applydata)
 
-    return JsonResponse({
-        "log": log_text,
-        "status": 200
-    })
+        return file
+    else:
+        log_text = process_apply(applydata)
+
+        return JsonResponse({
+            "log": log_text,
+            "status": 200
+        })
 

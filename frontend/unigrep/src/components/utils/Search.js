@@ -3,7 +3,7 @@ import axios from 'axios';
 export const performSearch = async (msg) => {
   try {
     console.log(msg)
-    const response = {
+    /*const response = {
       "status": 200,
 
       "data": {
@@ -24,12 +24,12 @@ export const performSearch = async (msg) => {
 
         }
       }
-    }
-    // const response = await axios.post('http://127.0.0.1:8000/api/search/', msg, {
-    //   headers: {
-    //     'Content-Type': 'application/json',
-    //   },
-    // });
+    }*/
+    const response = await axios.post('http://127.0.0.1:8000/api/search/', msg, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
     console.log('response is ', response)
     if (response.status === 200) {
 
