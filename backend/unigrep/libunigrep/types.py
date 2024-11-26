@@ -332,20 +332,20 @@ class FTPDriver(Driver):
         else:
             ftp = FTPHost(apply_data.root_address, "anonymous", "")
 
-        res = pd.read_csv(apply_data.result_set)
+        res = pd.DataFrame(apply_data.result_set)
         dlfiles = []
 
         for filepath in res["path"]:
             tmp = tempfile.NamedTemporaryFile()
             ftp.download(filepath, tmp.name)
-            dlfiles.append(tmp)
+            dlfiles.append((tmp, os.path.basename(filepath)))
 
         response = HttpResponse(content_type='application/octet-stream')
         response['Content-Disposition'] = 'attachment; filename="files.zip"'
         z = zipfile.ZipFile(response, "w")
 
-        for file in dlfiles:
-            z.write(file.name, os.path.basename(file.name))
+        for file, name in dlfiles:
+            z.write(file.name, name)
 
         z.close()
         return response
@@ -444,20 +444,20 @@ class SSHDriver(Driver):
         except Exception as e:
             raise ValueError("Failed while connecting to SSH", e)
 
-        res = pd.read_csv(apply_data.result_set)
+        res = pd.DataFrame(apply_data.result_set)
         dlfiles = []
 
         for filepath in res["path"]:
             tmp = tempfile.NamedTemporaryFile()
             sftp.get(filepath, tmp.name)
-            dlfiles.append(tmp)
+            dlfiles.append((tmp, os.path.basename(filepath)))
 
         response = HttpResponse(content_type='application/octet-stream')
         response['Content-Disposition'] = 'attachment; filename="files.zip"'
         z = zipfile.ZipFile(response, "w")
 
-        for file in dlfiles:
-            z.write(file.name, os.path.basename(file.name))
+        for file, name in dlfiles:
+            z.write(file.name, name)
 
         z.close()
         return response
@@ -533,12 +533,12 @@ def process_apply(params: ApplySchema):
             raise ValueError("Unknown Operation on Local")
     elif params.search_domain == "ftp":
         if params.operation == "download":
-            print("download executed")
+            return FTPDriver().download(params)
         else:
             raise ValueError("Unknown Operation on FTP")
     elif params.search_domain == "ssh":
         if params.operation == "download":
-            print("download executed")
+           return SSHDriver().download(params)
         else:
             raise ValueError("Unknown Operation on SSH")
 

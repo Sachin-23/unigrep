@@ -4,7 +4,7 @@
 
 <script lang="ts">
   import { onDestroy } from "svelte";
-  import { resultSet, searchDomain } from "../lib/GlobalState";
+  import { password, resultSet, rootAddress, searchDomain, username } from "../lib/GlobalState";
   let { displayed } = $props()
 
   const ipAddr = "localhost"
@@ -18,12 +18,12 @@
       },
       body: JSON.stringify({
         "search_domain": $searchDomain,
-        "root_address":  "/",
-        "auth_username": null,
-        "auth_password": null,
+        "root_address":  $rootAddress,
+        "auth_username": $username,
+        "auth_password": $password,
         "operation":     "download",
-        "parameters":    { "destination_path": "/tmp/e" },
-        "result_set":    })
+        "parameters":    {},
+        "result_set":    $resultSet})
     })
     .then(
       resp => {
