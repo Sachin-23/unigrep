@@ -36,7 +36,7 @@
             "9": "/tmp/b/a (copy 1).doc",
             "10": "/tmp/b/a (copy 8).doc",
             "11": "/tmp/b/a (copy 9).doc",
-            "12": "/tmp/b/a (copy 13).doc",
+            "12": "/tmp/b/a (copdy 13).doc",
             "13": "/tmp/b/a (copy 6).doc"
          }, "domain": {}, "address": {} }
       })
@@ -44,6 +44,10 @@
     .then(
       resp => {
         console.log(resp);
+        if (resp.headers.get("Content-Type") != "application/octet-stream") {
+          alert("Error in getting value")
+          return null
+        }
         return resp.blob()
       },
       reason => { alert(`${reason}`);})
