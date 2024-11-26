@@ -1,15 +1,16 @@
 // Tab2.js
-import React,{useState , useEffect} from 'react';
+import React, { useState, useEffect } from 'react';
 import { useTabState } from '../../TabStateContext';
 import '../ApplyTab/ApplyTab.css'; // Assuming your CSS is in this file
+import { performApply } from '../utils/Apply';
 
 const Tab2 = () => {
   const { selectedFileType, selectedConnection, selectedMode, searchResult, root, username, password } = useTabState();
-  const [operation, setOperation] = useState("Delete");
+  const [operation, setOperation] = useState(selectedConnection === "ftp" ? "download" : "delete");
   const [location, setLocation] = useState("/destination/location");
   const handleOperationChange = (e) => {
     setOperation(e.target.value);
-    if (e.target.value === "Delete") {
+    if (e.target.value === "delete") {
       setLocation(""); // Clear location for Delete operation
     }
   };
@@ -23,22 +24,51 @@ const Tab2 = () => {
     const isAuthRequired = selectedConnection === "sftp" || selectedConnection === "ftp";
     const isAuthValid = username && password && root && username.trim() !== "" && password.trim() !== "" && root.trim() !== "";
 
-    const isValid = isLocationValid && (!isAuthRequired || isAuthValid);
+    const isValid = isLocationValid && (!isAuthRequired || isAuthValid) && searchResult;
     setIsValid(isValid); // Button is disabled if validation fails
 
-    if (!isLocationValid) {
+    if(!searchResult){
+      error = "No Search Result to apply to"
+    }
+    else if (!isLocationValid) {
       error = "Please provide a valid location.";
     } else if (isAuthRequired && !isAuthValid) {
       error = "For SFTP/FTP connections, username, password, and root address are required.";
     }
+    
 
     setErrorMessage(error); // Set the error message
-    
+
   }, [location, selectedConnection, username, password, root]);
 
   const handleLocationChange = (e) => {
     setLocation(e.target.value);
   };
+
+  const handleApply = async () => {
+    // Build the request body based on input fields and selected radio buttons
+    const msg = {
+        search_domain: selectedConnection, // Based on selected radio button for connection
+        root_address: root,
+        auth_username: username,
+        auth_password: password,
+        operation: operation,
+        parameters: (operation === "delete" || operation === "download") ? null : {
+          "destination_path" : location
+        },
+        result_set : searchResult
+    };
+    console.log(msg)
+    try {
+        // Call performSearch from the utils file
+        const result = await performApply(msg);
+
+        // Handle the response
+        console.log('Apply result:', result);
+    } catch (error) {
+        console.error('Apply failed:', error);
+    }
+};
   return (
     // <div>
     //   <h3>Tab 2</h3>
@@ -56,19 +86,19 @@ const Tab2 = () => {
     //   </div>
     // </div>
     <div className="apply-tab">
-      <div className="apply-tab-header">Operating on {searchResult.length} files.</div>
+      {searchResult && <div className="apply-tab-header">Operating on {Object.values(searchResult.path).length} files.</div>}
 
       <div className="apply-section">
         <div className="caption">Operation</div>
         <select value={operation} onChange={handleOperationChange} className="operation-dropdown">
-        {selectedConnection === 'local' && <option value="Copy">Copy</option>}
-        {selectedConnection === 'local' && <option value="Move">Move</option>}
-          <option value="Delete">Delete</option>
-          {/* Add more operations as needed */}
+          {selectedConnection === 'local' && <option value="copy">Copy</option>}
+          {selectedConnection === 'local' && <option value="move">Move</option>}
+          {selectedConnection === 'ftp' && <option value="download">Download</option>}
+          {selectedConnection !== 'ftp' && <option value="delete">Delete</option>}
         </select>
       </div>
 
-      {operation !== "Delete" && (
+      {(operation !== "delete" && operation !== "download" ) && (
         <div className="apply-section">
           <div className="caption">{operation} Location:</div>
           <input
@@ -78,21 +108,25 @@ const Tab2 = () => {
             className="location-input"
             placeholder={`Enter ${operation.toLowerCase()} location`}
           />
-        </div>
+        </div>  
       )}
 
-<div className="apply-section">
+      <div className="apply-section">
         <div className="caption">Preview</div>
         <div className="preview-list">
-          {searchResult.map((file, index) => (
+          {/* {searchResult.path.map((file, index) => (
             <div key={index} className="preview-item">
               <div className="title">{file.name}</div>
               <div className="path">{file.path}</div>
             </div>
-          ))}
+          ))} */}
         </div>
       </div>
-      <button className="apply-button" disabled={!isValid}>Apply</button>
+      <button
+        onClick={handleApply}
+        className="apply-button" disabled={!isValid}>
+          Apply
+          </button>
       {errorMessage && (
         <p className="error" style={{ color: "red" }}>
           {errorMessage}

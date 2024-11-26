@@ -33,7 +33,7 @@ export const performSearch = async (msg) => {
     console.log('response is ', response)
     if (response.status === 200) {
 
-      return response.data.path; // Return the search result
+      return response.data; // Return the search result
     } else {
       throw new Error('Failed to fetch data');
     }

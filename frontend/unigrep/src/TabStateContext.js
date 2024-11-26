@@ -10,7 +10,7 @@ export const TabStateProvider = ({ children }) => {
   const [selectedConnection, setSelectedConnection] = useState('local');
   const [selectedMode, setSelectedMode] = useState('glob');
   const [searchQuery, setSearchQuery] = useState('');
-  const [searchResult, setSearchResult] = useState([]);
+  const [searchResult, setSearchResult] = useState(null);
   const [root, setRoot] = useState(null);
   const [username, setUsername] = useState(null);
   const [password, setPassword] = useState(null);

@@ -28,6 +28,7 @@ const Tab1 = () => {
 
     // Initialize state for the input field
     const [inputValue, setInputValue] = useState('My Doc:*');
+    const [errorMessage, setErrorMessage] = useState("");
 
     // Handler function to update state when input changes
     const handleInputChange = (e) => {
@@ -42,11 +43,24 @@ const Tab1 = () => {
     const [isValid, setIsValid] = useState(false); // Tracks the validation status
     // Validation logic in useEffect
   useEffect(() => {
+    let error = "";
+
     const isInputValid = inputValue.trim() !== '';
     const areLocationsValid = locations.length > 0 && locations.every((loc) => loc.trim() !== ''); // Check all locations have values
+    const isAuthRequired = selectedConnection === "sftp" || selectedConnection === "ftp";
+    const isAuthValid = username && password && root && username.trim() !== "" && password.trim() !== "" && root.trim() !== "";
 
-    setIsValid(isInputValid && areLocationsValid);
-  }, [inputValue, locations]); // Dependencies: Re-run when these change
+    setIsValid(isInputValid && areLocationsValid && (!isAuthRequired || isAuthValid));
+    if (!areLocationsValid) {
+        error = "Please provide valid locations.";
+      } else if (isAuthRequired && !isAuthValid) {
+        error = "For SFTP/FTP connections, username, password, and root address are required.";
+      } else if (!isInputValid){
+        error = "Please provide valid filter Query"
+      }
+  
+      setErrorMessage(error); // Set the error message
+  }, [inputValue, locations , selectedConnection , username, password, root]); // Dependencies: Re-run when these change
 
     const handleSearch = async () => {
         // Build the request body based on input fields and selected radio buttons
@@ -67,7 +81,7 @@ const Tab1 = () => {
 
             // Handle the response
             console.log('Search result:', result);
-            updateSearchResult(Object.values(result)); // Store result in context
+            updateSearchResult(result); // Store result in context
         } catch (error) {
             console.error('Search failed:', error);
         }
@@ -213,15 +227,15 @@ const Tab1 = () => {
             >
                 search
             </button>
-            {!isValid && (
-        <p className="error" style={{ color: 'red' }}>
-          Please enter a filter query and check filter locations.
+            {errorMessage && (
+        <p className="error" style={{ color: "red" }}>
+          {errorMessage}
         </p>
       )}
 
 
             <div className="results-container">
-                <div className="caption">Results [{searchResult.length}]</div>
+                {/* {searchResult && <div className="caption">Results [{searchResult.path.length}]</div>} */}
                 <div className="results-bar">
                     {/* {searchResult.map((sourceItem, sourceIndex) => (
                         <div key={sourceIndex} className="source">
@@ -235,7 +249,7 @@ const Tab1 = () => {
                         </div>
                     ))} */}
 
-                    {searchResult.map((path, index) => (
+                    { searchResult && Object.values(searchResult.path).map((path, index) => (
                         <div className="path" key={index}>
                             Path: {path}
                         </div>
