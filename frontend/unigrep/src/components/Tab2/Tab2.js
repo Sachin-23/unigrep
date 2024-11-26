@@ -56,7 +56,7 @@ const Tab2 = () => {
       headers: {
         "Content-Type": "application/json"
       },
-      body: msg
+      body: JSON.stringify(msg)
     })
     .then (
       resp => {
@@ -136,7 +136,7 @@ const Tab2 = () => {
         <select value={operation} onChange={handleOperationChange} className="operation-dropdown">
           {selectedConnection === 'local' && <option value="copy">Copy</option>}
           {selectedConnection === 'local' && <option value="move">Move</option>}
-          {selectedConnection === 'ftp' && <option value="download">Download</option>}
+          {selectedConnection !== 'ssh' && <option value="download">Download</option>}
           {selectedConnection !== 'ftp' && <option value="delete">Delete</option>}
         </select>
       </div>
