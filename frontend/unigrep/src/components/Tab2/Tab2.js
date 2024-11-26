@@ -1,5 +1,5 @@
 // Tab2.js
-import React,{useState} from 'react';
+import React,{useState , useEffect} from 'react';
 import { useTabState } from '../../TabStateContext';
 import '../ApplyTab/ApplyTab.css'; // Assuming your CSS is in this file
 
@@ -13,6 +13,28 @@ const Tab2 = () => {
       setLocation(""); // Clear location for Delete operation
     }
   };
+  const [isValid, setIsValid] = useState(false); // Tracks the validation status
+  const [errorMessage, setErrorMessage] = useState("");
+
+  // Validation logic in useEffect
+  useEffect(() => {
+    let error = "";
+    const isLocationValid = location.trim() !== "";
+    const isAuthRequired = selectedConnection === "sftp" || selectedConnection === "ftp";
+    const isAuthValid = username && password && root && username.trim() !== "" && password.trim() !== "" && root.trim() !== "";
+
+    const isValid = isLocationValid && (!isAuthRequired || isAuthValid);
+    setIsValid(isValid); // Button is disabled if validation fails
+
+    if (!isLocationValid) {
+      error = "Please provide a valid location.";
+    } else if (isAuthRequired && !isAuthValid) {
+      error = "For SFTP/FTP connections, username, password, and root address are required.";
+    }
+
+    setErrorMessage(error); // Set the error message
+    
+  }, [location, selectedConnection, username, password, root]);
 
   const handleLocationChange = (e) => {
     setLocation(e.target.value);
@@ -70,7 +92,12 @@ const Tab2 = () => {
           ))}
         </div>
       </div>
-      <button className="apply-button">Apply</button>
+      <button className="apply-button" disabled={!isValid}>Apply</button>
+      {errorMessage && (
+        <p className="error" style={{ color: "red" }}>
+          {errorMessage}
+        </p>
+      )}
 
     </div>
   );

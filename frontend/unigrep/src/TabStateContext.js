@@ -6,14 +6,14 @@ const TabStateContext = createContext();
 
 // Create Provider
 export const TabStateProvider = ({ children }) => {
-  const [selectedFileType, setSelectedFileType] = useState('filename');
+  const [selectedFileType, setSelectedFileType] = useState('filenames');
   const [selectedConnection, setSelectedConnection] = useState('local');
-  const [selectedMode, setSelectedMode] = useState('blob');
+  const [selectedMode, setSelectedMode] = useState('glob');
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResult, setSearchResult] = useState([]);
-  const [root, setRoot] = useState('');
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
+  const [root, setRoot] = useState(null);
+  const [username, setUsername] = useState(null);
+  const [password, setPassword] = useState(null);
   // Function to update the search result
   const updateSearchResult = (result) => setSearchResult(result);
 

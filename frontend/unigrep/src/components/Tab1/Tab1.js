@@ -1,5 +1,5 @@
 // Tab1.js
-import React, { useState } from 'react';
+import React, { useState , useEffect } from 'react';
 import { useTabState } from '../../TabStateContext';
 import '../FilterQuery/FilterQuery.css';
 import '../Results/Results.css'
@@ -37,15 +37,28 @@ const Tab1 = () => {
 
     const [locations, setLocations] = useState([
         "/home/edit/this/default/location"
-      ]);
+    ]);
+
+    const [isValid, setIsValid] = useState(false); // Tracks the validation status
+    // Validation logic in useEffect
+  useEffect(() => {
+    const isInputValid = inputValue.trim() !== '';
+    const areLocationsValid = locations.length > 0 && locations.every((loc) => loc.trim() !== ''); // Check all locations have values
+
+    setIsValid(isInputValid && areLocationsValid);
+  }, [inputValue, locations]); // Dependencies: Re-run when these change
+
     const handleSearch = async () => {
         // Build the request body based on input fields and selected radio buttons
         const msg = {
-            search_types: [selectedFileType], // Static value for now, can be dynamic if needed
-            search_domain: [selectedConnection], // Based on selected radio button for connection
+            search_type: selectedFileType, // Static value for now, can be dynamic if needed
+            search_domain: selectedConnection, // Based on selected radio button for connection
             search_locations: locations, // Static values for now
             search_query: inputValue, // Value from the search input
-            search_query_type: selectedMode, // Regex or Blob from the radio button
+            search_query_type: selectedMode, // Regex or glob from the radio button
+            root_address: root,
+            auth_username: username,
+            auth_password: password
         };
         console.log(msg)
         try {
@@ -54,7 +67,7 @@ const Tab1 = () => {
 
             // Handle the response
             console.log('Search result:', result);
-            updateSearchResult(result); // Store result in context
+            updateSearchResult(Object.values(result)); // Store result in context
         } catch (error) {
             console.error('Search failed:', error);
         }
@@ -76,8 +89,8 @@ const Tab1 = () => {
                     <label className="radio-button">
                         <input
                             type="radio"
-                            value="filename"
-                            checked={selectedFileType === 'filename'}
+                            value="filenames"
+                            checked={selectedFileType === 'filenames'}
                             onChange={(e) => setSelectedFileType(e.target.value)}
                         />
                         Filename
@@ -138,11 +151,11 @@ const Tab1 = () => {
                     <label className="radio-button">
                         <input
                             type="radio"
-                            value="blob"
-                            checked={selectedMode === 'blob'}
+                            value="glob"
+                            checked={selectedMode === 'glob'}
                             onChange={(e) => setSelectedMode(e.target.value)}
                         />
-                        Blob
+                        Glob
                     </label>
                     <label className="radio-button">
                         <input
@@ -196,18 +209,23 @@ const Tab1 = () => {
                     fontSize: '16px',
                     marginTop: '10px',
                 }}
+                disabled={!isValid}
             >
-                Search
+                search
             </button>
+            {!isValid && (
+        <p className="error" style={{ color: 'red' }}>
+          Please enter a filter query and check filter locations.
+        </p>
+      )}
 
 
             <div className="results-container">
                 <div className="caption">Results [{searchResult.length}]</div>
                 <div className="results-bar">
-                    {searchResult.map((sourceItem, sourceIndex) => (
+                    {/* {searchResult.map((sourceItem, sourceIndex) => (
                         <div key={sourceIndex} className="source">
                            
-                            {/* Loop through each result within the source */}
                             {sourceItem.result.map((resultItem, resultIndex) => (
                                 <div key={resultIndex} className="result">
                                     <div className="matchType">Match Type: {resultItem.match_type}</div>
@@ -215,7 +233,14 @@ const Tab1 = () => {
                                 </div>
                             ))}
                         </div>
+                    ))} */}
+
+                    {searchResult.map((path, index) => (
+                        <div className="path" key={index}>
+                            Path: {path}
+                        </div>
                     ))}
+
 
                 </div>
             </div>
