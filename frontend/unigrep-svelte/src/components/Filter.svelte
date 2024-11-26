@@ -5,6 +5,7 @@
 <script lang="ts">
   import { onDestroy } from "svelte";
   import {
+    resultDisplaySet,
     resultSet,
     searchQuery,
     searchDomain,
@@ -41,14 +42,14 @@
       console.log(data.path)
     for (let val of Object.keys(data.path)) {
       console.log(data.path[val])
-      $resultSet.push(data.path[val])
+      $resultDisplaySet.push(data.path[val])
     }
-    $resultSet = $resultSet
+    $resultDisplaySet = $resultDisplaySet
   }
 
   const startSearch = () => {
     $errorMessage = `Please Wait...`
-    $resultSet = []
+    $resultDisplaySet = []
     searchLock = true
     fetch(`http://${ipAddr}:${clientPort}/api/search/`, {
       method: "POST",
@@ -63,8 +64,8 @@
         "search_query_type": $searchQueryType,
         "root_address":      $rootAddress,
         "recursion_depth":   5,
-        "auth_username":     null,
-        "auth_password":     null
+        "auth_username":     $username,
+        "auth_password":     $password
       })
     })
     .then(
@@ -72,6 +73,7 @@
       reason => { $errorMessage = `${reason}`; searchLock = false;})
     .then(value => {
       extractResults(value);
+      $resultSet = value
       $errorMessage = "";
       searchLock = false;
     }, reason => {
@@ -161,12 +163,12 @@
 
   <div class="vertical-spacer"> </div>
 
-  <div class="caption">Results [{$resultSet.length}]</div>
+  <div class="caption">Results [{$resultDisplaySet.length}]</div>
   <div class="loader"> </div>
   <div class="results-bar">
   {$errorMessage}
-{#if $resultSet.length > 0}
-  {#each $resultSet as result}
+{#if $resultDisplaySet.length > 0}
+  {#each $resultDisplaySet as result}
     <div class="result">
       <div class="title">{result.split("/").at(-1)}</div>
       <div class="path">{result}</div>

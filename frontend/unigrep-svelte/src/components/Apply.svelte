@@ -4,7 +4,7 @@
 
 <script lang="ts">
   import { onDestroy } from "svelte";
-  import { resultSet } from "../lib/GlobalState";
+  import { resultSet, searchDomain } from "../lib/GlobalState";
   let { displayed } = $props()
 
   const ipAddr = "localhost"
@@ -17,29 +17,13 @@
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        "search_domain":     "local",
-        "root_address":      "/",
-        "auth_username":     null,
-        "auth_password":     null,
-        "operation":         "download",
-        "parameters":        { "destination_path": "/tmp/e" },
-        "result_set":        { "path": {
-            "0": "/tmp/b/a (copy 11).doc",
-            "1": "/tmp/b/a (copy 12).doc",
-            "2": "/tmp/b/a (copy 3).doc",
-            "3": "/tmp/b/a (copy 10).doc",
-            "4": "/tmp/b/a (copy 7).doc",
-            "5": "/tmp/b/a (copy 5).doc",
-            "6": "/tmp/b/a (copy 2).doc",
-            "7": "/tmp/b/a.doc",
-            "8": "/tmp/b/a (copy 4).doc",
-            "9": "/tmp/b/a (copy 1).doc",
-            "10": "/tmp/b/a (copy 8).doc",
-            "11": "/tmp/b/a (copy 9).doc",
-            "12": "/tmp/b/a (copdy 13).doc",
-            "13": "/tmp/b/a (copy 6).doc"
-         }, "domain": {}, "address": {} }
-      })
+        "search_domain": $searchDomain,
+        "root_address":  "/",
+        "auth_username": null,
+        "auth_password": null,
+        "operation":     "download",
+        "parameters":    { "destination_path": "/tmp/e" },
+        "result_set":    })
     })
     .then(
       resp => {

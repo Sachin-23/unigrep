@@ -13,6 +13,7 @@ from ftputil import FTPHost
 from marshmallow import Schema, fields
 from typing import Iterable, List, TextIO, Tuple
 import paramiko
+import traceback
 
 SUPPORTED_DOMAINS: List[str] = [
     "local",
@@ -370,9 +371,8 @@ class SSHDriver(Driver):
         sftp = None
 
         try:
-            if query.auth_username != None and query.auth_password != None and query.root_address != None:
-                ssh.connect(hostname=query.root_address, username=query.auth_username, password=query.auth_password)
-                sftp = ssh.open_sftp()
+            ssh.connect(hostname=query.root_address, username=query.auth_username, password=query.auth_password)
+            sftp = ssh.open_sftp()
         except Exception as e:
             raise ValueError("Failed while connecting to SSH", e)
 
@@ -392,13 +392,14 @@ class SSHDriver(Driver):
                     try:
                         sftp.chdir(location)
                     except Exception as e:
+                        print(traceback.print_exc())
                         print(f"Location {location} cannot be accessed.")
                         continue
 
                     files = []
 
                     try:
-                        files = sftp.listdir_attr(location)
+                        files = sftp.listdir(location)
                     except Exception as e:
                         print(f"Cannot list files at {location}")
                         continue
