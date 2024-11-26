@@ -4,12 +4,13 @@
 
 <script lang="ts">
   import { onDestroy } from "svelte";
+    import { resultSet } from "../lib/GlobalState";
   let { displayed } = $props()
 </script>
 
 <div class="apply-body" style:display={displayed ? "block" : "none"} >
   <div class="apply-head-caption">
-    Operating on 4 files.
+    Operating on { $resultSet.length } files.
   </div>
 
   <div class="apply-body-content">
