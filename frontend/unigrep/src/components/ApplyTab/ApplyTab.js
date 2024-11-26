@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import './ApplyTab.css'; // Assuming your CSS is in this file
 
 const ApplyTab = () => {
-  const [operation, setOperation] = useState("Copy");
+  const [operation, setOperation] = useState("Delete");
   const [location, setLocation] = useState("/home/user/Publish/");
   const previewFiles = [
     { name: "My Doc: First.doc", path: "/home/user/Publish/work/My Doc: First.doc" },

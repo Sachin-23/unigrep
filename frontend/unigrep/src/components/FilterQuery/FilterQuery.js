@@ -16,7 +16,7 @@ function FilterQuery() {
   return (
     <div className="filter-body">
       <div className="caption">Filter Query</div>
-      <div className="filter-bar" contentEditable={true}>My Doc:*</div>
+      <div className="filter-bar" contentEditable={true} >My Doc:*</div>
       <div className="button-bar-set">
         
         {/* Filenames and File Contents as radio buttons */}
