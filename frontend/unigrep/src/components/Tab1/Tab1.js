@@ -47,15 +47,20 @@ const Tab1 = () => {
 
     const isInputValid = inputValue.trim() !== '';
     const areLocationsValid = locations.length > 0 && locations.every((loc) => loc.trim() !== ''); // Check all locations have values
-    const isAuthRequired = selectedConnection === "sftp" || selectedConnection === "ftp";
+    const isAuthRequired = selectedConnection === "ssh";
     const isAuthValid = username && password && root && username.trim() !== "" && password.trim() !== "" && root.trim() !== "";
+    const isOnlyRootRequired = selectedConnection === "ftp";
+    const isOnlyRootValid = root && root.trim() !== "";
 
     setIsValid(isInputValid && areLocationsValid && (!isAuthRequired || isAuthValid));
     if (!areLocationsValid) {
         error = "Please provide valid locations.";
       } else if (isAuthRequired && !isAuthValid) {
-        error = "For SFTP/FTP connections, username, password, and root address are required.";
-      } else if (!isInputValid){
+        error = "For SFTP connection, username, password, and root address are required.";
+      } 
+      else if (isOnlyRootRequired && !isOnlyRootValid){
+        error = "Please provide valid root address"
+      }else if (!isInputValid){
         error = "Please provide valid filter Query"
       }
   
@@ -143,7 +148,7 @@ const Tab1 = () => {
                             checked={selectedConnection === 'ftp'}
                             onChange={(e) => {
                                 setSelectedConnection(e.target.value)
-                                setSelectedFileType('filename')
+                                setSelectedFileType('filenames')
                             }}
                         />
                         FTP
@@ -151,8 +156,8 @@ const Tab1 = () => {
                     <label className="radio-button">
                         <input
                             type="radio"
-                            value="sftp"
-                            checked={selectedConnection === 'sftp'}
+                            value="ssh"
+                            checked={selectedConnection === 'ssh'}
                             onChange={(e) => setSelectedConnection(e.target.value)}
                         />
                         SFTP
@@ -184,7 +189,7 @@ const Tab1 = () => {
             </div>
 
             {/* Conditionally render the input fields for Root, Username, and Password */}
-            {(selectedConnection === "ftp" || selectedConnection === "sftp") && (
+            {(selectedConnection === "ftp" || selectedConnection === "ssh") && (
                 <div className="credentials-form">
                     <input
                         type="text"

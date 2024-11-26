@@ -2,7 +2,8 @@
 import React, { useState, useEffect } from 'react';
 import { useTabState } from '../../TabStateContext';
 import '../ApplyTab/ApplyTab.css'; // Assuming your CSS is in this file
-import { performApply } from '../utils/Apply';
+import { performApply } from '../utils/apply';
+
 
 const Tab2 = () => {
   const { selectedFileType, selectedConnection, selectedMode, searchResult, root, username, password } = useTabState();
@@ -20,26 +21,30 @@ const Tab2 = () => {
   // Validation logic in useEffect
   useEffect(() => {
     let error = "";
-    const isLocationValid = location.trim() !== "";
-    const isAuthRequired = selectedConnection === "sftp" || selectedConnection === "ftp";
+    const isLocationValid =  location.trim() !== "";
+    const isAuthRequired = selectedConnection === "ssh";
     const isAuthValid = username && password && root && username.trim() !== "" && password.trim() !== "" && root.trim() !== "";
-
+    const isOnlyRootRequired = selectedConnection === "ftp";
+    const isOnlyRootValid = root && root.trim() !== "";
     const isValid = isLocationValid && (!isAuthRequired || isAuthValid) && searchResult;
     setIsValid(isValid); // Button is disabled if validation fails
 
     if(!searchResult){
       error = "No Search Result to apply to"
     }
-    else if (!isLocationValid) {
+    else if ((operation==="move" || operation==="copy") && !isLocationValid) {
       error = "Please provide a valid location.";
     } else if (isAuthRequired && !isAuthValid) {
-      error = "For SFTP/FTP connections, username, password, and root address are required.";
+      error = "For SFTP connections, username, password, and root address are required.";
+    }
+    else if (isOnlyRootRequired && !isOnlyRootValid){
+      error = "Please provide valid root address"
     }
     
 
     setErrorMessage(error); // Set the error message
 
-  }, [location, selectedConnection, username, password, root]);
+  }, [location, selectedConnection, username, password, root , operation]);
 
   const handleLocationChange = (e) => {
     setLocation(e.target.value);

@@ -3,28 +3,28 @@ import axios from 'axios';
 export const performSearch = async (msg) => {
   try {
     console.log(msg)
-    /*const response = {
-      "status": 200,
+    // const response = {
+    //   "status": 200,
 
-      "data": {
-        "path": {
-          "0": "/tmp/b/a (copy 11).doc",
-          "1": "/tmp/b/a ( copy 12).doc",
-          "2": "/tmp/b/a (copy 3).doc",
-          "3": "/tmpibla (copy 10).doc",
-          "4": "/tmp/b/a (copy 7).doc",
-          "5": "/tmp/b/a lcopy 5).doc",
-          "6": "/tmpibla (copy.2).doc",
-          "7": "/tmp/b/a.doc"
-        },
-        "domain": {
+    //   "data": {
+    //     "path": {
+    //       "0": "/tmp/b/a (copy 11).doc",
+    //       "1": "/tmp/b/a ( copy 12).doc",
+    //       "2": "/tmp/b/a (copy 3).doc",
+    //       "3": "/tmpibla (copy 10).doc",
+    //       "4": "/tmp/b/a (copy 7).doc",
+    //       "5": "/tmp/b/a lcopy 5).doc",
+    //       "6": "/tmpibla (copy.2).doc",
+    //       "7": "/tmp/b/a.doc"
+    //     },
+    //     "domain": {
 
-        },
-        "address": {
+    //     },
+    //     "address": {
 
-        }
-      }
-    }*/
+    //     }
+    //   }
+    // }
     const response = await axios.post('http://127.0.0.1:8000/api/search/', msg, {
       headers: {
         'Content-Type': 'application/json',
