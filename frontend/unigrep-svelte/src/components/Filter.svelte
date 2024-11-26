@@ -21,6 +21,7 @@
   let paths: Array<string> = $state(["/"])
   let results: Array<string> = $state([])
   let errorMessage = writable("")
+  let searchLock: boolean = $state(false)
 
   const insertPath = () => {
     paths.push("")
@@ -47,6 +48,8 @@
 
   const startSearch = () => {
     $errorMessage = `Please Wait...`
+    $resultSet = []
+    searchLock = true
     fetch(`http://${ipAddr}:${clientPort}/api/search/`, {
       method: "POST",
       headers: {
@@ -56,7 +59,7 @@
         "search_type":       $searchType,
         "search_domain":     $searchDomain,
         "search_locations":  paths,
-        "search_query":      searchQuery,
+        "search_query":      $searchQuery,
         "search_query_type": $searchQueryType,
         "root_address":      $rootAddress,
         "recursion_depth":   5,
@@ -64,11 +67,17 @@
         "auth_password":     null
       })
     })
-    .then(resp => { console.log(resp); return resp.json(); }, reason => $errorMessage = `${reason}`)
+    .then(
+      resp => { console.log(resp); searchLock = false; return resp.json(); },
+      reason => { $errorMessage = `${reason}`; searchLock = false;})
     .then(value => {
       extractResults(value);
       $errorMessage = "";
-    }, reason => $errorMessage = `${reason}`)
+      searchLock = false;
+    }, reason => {
+      $errorMessage = `${reason}`
+      searchLock = false
+    })
   }
 
 

@@ -105,10 +105,11 @@ blockquote {
 }
 
 .tabbar .tab {
+  border: none;
   border-top-left-radius: 3px;
   border-top-right-radius: 3px;
   margin-bottom: 0;
-  padding: 5px;
+  padding: 5px 10px 5px 10px;
   background-color: #666666;
   color: white;
   font-size: 12px;
@@ -308,7 +309,7 @@ blockquote {
 }
 
 .input-box {
-  margin: 5px;
+  margin: 10px;
   display: inline-block;
 }
 

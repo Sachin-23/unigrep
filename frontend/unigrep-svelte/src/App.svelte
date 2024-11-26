@@ -1,8 +1,7 @@
 <script lang="ts">
-  import svelteLogo from './assets/svelte.svg'
   import unigrepLogo from './assets/logo_short_export.svg'
-  import viteLogo from '/vite.svg'
   import Filter from './components/Filter.svelte';
+  import Apply from './components/Apply.svelte';
 
   const TAB_FILTER = 0;
   const TAB_APPLY = 1;
@@ -15,11 +14,17 @@
     <img class="logo" src={unigrepLogo} alt="Unigrep" />
   </div>
   <div class="tabbar">
-    <div class="tab" style="background-color:#444444;">Filter</div>
-    <div class="tab">Apply</div>
+    <button
+      class="tab"
+      style:background-color={ tabNumber == TAB_FILTER ? "#444444" : "" }
+      onclick={() => tabNumber = TAB_FILTER}>Filter</button>
+    <button
+      class="tab"
+      style:background-color={ tabNumber == TAB_APPLY ? "#444444" : "" }
+      onclick={() => tabNumber = TAB_APPLY}>Apply</button>
     <div class="spacer"></div>
-    <div class="tab">Settings</div>
   </div>
   <Filter displayed = {tabNumber == TAB_FILTER} />
+  <Apply displayed = {tabNumber == TAB_APPLY} />
 </div>
 </main>
