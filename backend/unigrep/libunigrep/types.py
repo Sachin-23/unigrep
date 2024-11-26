@@ -1,11 +1,14 @@
 from enum import Enum
 from inspect import Arguments
+import os
 from pathlib import Path
 import re
 import shutil
+from django.http import HttpResponse
 import pandas as pd
 import zipfile
 import fnmatch
+import tempfile
 from ftputil import FTPHost
 from marshmallow import Schema, fields
 from typing import Iterable, List, TextIO, Tuple
@@ -95,6 +98,16 @@ class QuerySchema(Schema):
     recursion_depth     = fields.Int(allow_none=True, default=5)
     auth_username       = fields.Str(allow_none=True)
     auth_password       = fields.Str(allow_none=True)
+
+class ApplySchema(Schema):
+    search_domain       = fields.Str()
+    root_address        = fields.Str(allow_none=True)
+    recursion_depth     = fields.Int(allow_none=True, default=5)
+    auth_username       = fields.Str(allow_none=True)
+    auth_password       = fields.Str(allow_none=True)
+    operation           = fields.Str()
+    parameters          = fields.Dict(allow_none=True)
+    result_set          = fields.Dict() # SEND RESULT AS-IS
 
 class File:
     def __init__(self, domain: str, path: str, file_object: TextIO):
@@ -308,12 +321,30 @@ class FTPDriver(Driver):
 
         return result
 
-    def open_file(self, path: Path | str) -> File:
-        return File(
-            domain = "local",
-            path = str(path),
-            file_object = open(path, "r")
-        )
+    def download(self, apply_data: ApplySchema) -> HttpResponse:
+        ftp = None
+        if apply_data.auth_username != None and apply_data.auth_password != None:
+            ftp = FTPHost(apply_data.root_address, apply_data.auth_username, apply_data.auth_password)
+        else:
+            ftp = FTPHost(apply_data.root_address, "anonymous", "")
+
+        res = pd.read_csv(apply_data.result_set)
+        dlfiles = []
+
+        for filepath in res["path"]:
+            tmp = tempfile.NamedTemporaryFile()
+            ftp.download(filepath, tmp.name)
+            dlfiles.append(tmp)
+
+        response = HttpResponse(content_type='application/octet-stream')
+        response['Content-Disposition'] = 'attachment; filename="files.zip"'
+        z = zipfile.ZipFile(response, "w")
+
+        for file in dlfiles:
+            z.write(file.name, os.path.basename(file.name))
+
+        z.close()
+        return response
 
 class SSHDriver(Driver):
     @staticmethod
@@ -432,6 +463,28 @@ def get_domain_from_location(location: str) -> str:
 ##
 def make_zip(files: Iterable[File]) -> zipfile.ZipFile:
     raise NotImplementedError()
+
+
+def process_apply(params: ApplySchema):
+    if params.search_domain == "local":
+        if params.operation == "copy":
+            print("copy executed")
+        elif params.operation == "move":
+            print("move executed")
+        elif params.operation == "delete":
+            print("delete executed")
+        else:
+            raise ValueError("Unknown Operation on Local")
+    elif params.search_domain == "ftp":
+        if params.operation == "download":
+            print("download executed")
+        else:
+            raise ValueError("Unknown Operation on FTP")
+    elif params.search_domain == "ssh":
+        if params.operation == "download":
+            print("download executed")
+        else:
+            raise ValueError("Unknown Operation on SSH")
 
 # def _test():
 #     s = FTPDriver()

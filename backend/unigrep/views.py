@@ -9,9 +9,9 @@ import traceback
 
 from marshmallow import Schema, fields
 
-from .libunigrep.types import QuerySchema
+from .libunigrep.types import QuerySchema, ApplySchema
 from .libunigrep.types import LocalDriver, FTPDriver, SSHDriver
-from .libunigrep.types import result_to_json
+from .libunigrep.types import result_to_json, process_apply
 
 # Create your views here.
 @csrf_exempt
@@ -53,29 +53,18 @@ def search(request):
 
 @csrf_exempt
 def apply(request):
-    '''NOTE: WRITE DESCRIPTION FOR THIS'''
+
+    applydata = {}
     try:
         msg = json.loads(request.body)
-        print(msg)
-        validate(msg, schema=applyReqSchema)
+        print("DBG Request: ", msg)
+        applydata = ApplySchema.from_dict(msg)
+    except json.JSONDecodeError as e:
+        return JsonResponse({"Error": f"Invalid JSON supplied: {e}" })
     except Exception as e:
         return JsonResponse({"Error": str(e)})
 
-    noError = True
-    '''...processing...'''
-    dummyRes = {
-            "status": "ok",
-            "statuscode": "200",
-            "response_type": "table",
-            "response": {
-                "a": [],
-                "b": [],
-                "c": []
-                }
-            }
-    if noError:
-        return JsonResponse(dummyRes)
-    else:
-        return JsonResponse({"Error": "Dummy Error"})
-    return HttpResponse("Not implemented. Apply function.")
+    process_apply(applydata)
+
+    return HttpResponse(str.encode('{"status": 200}'), content_type='application/json')
 
