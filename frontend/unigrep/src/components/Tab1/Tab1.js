@@ -77,7 +77,8 @@ const Tab1 = () => {
             search_query_type: selectedMode, // Regex or glob from the radio button
             root_address: root,
             auth_username: username,
-            auth_password: password
+            auth_password: password,
+            recursion_depth:5
         };
         console.log(msg)
         try {
