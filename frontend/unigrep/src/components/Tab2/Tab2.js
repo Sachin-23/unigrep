@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { useTabState } from '../../TabStateContext';
 import '../ApplyTab/ApplyTab.css'; // Assuming your CSS is in this file
-import { performApply } from '../utils/apply';
+import { performApply } from '../utils/Apply';
 
 
 const Tab2 = () => {
@@ -50,6 +50,41 @@ const Tab2 = () => {
     setLocation(e.target.value);
   };
 
+  const performDownload = (msg) => {
+    fetch(`http://localhost:8000/api/apply/`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: msg
+    })
+    .then (
+      resp => {
+        console.log(resp);
+        if (resp.headers.get("Content-Type") != "application/octet-stream") {
+          alert("Error in getting value")
+          return null
+        }
+        return resp.blob()
+      },
+      reason => { alert(`${reason}`);})
+    .then(
+      blob => {
+        if (!blob) {
+          return;
+        }
+        const url = window.URL.createObjectURL(blob); // create a new object url
+        const a = document.createElement("a"); // create a new anchor element
+        a.href = url; // set its href to the object URL
+        a.download = "file.zip";  // set its download attribute to the deisred filename.
+        a.click();
+      },
+      reason => { alert(`${reason}`);}
+    )
+
+  }
+
+
   const handleApply = async () => {
     // Build the request body based on input fields and selected radio buttons
     const msg = {
@@ -66,10 +101,13 @@ const Tab2 = () => {
     console.log(msg)
     try {
         // Call performSearch from the utils file
-        const result = await performApply(msg);
-
+        if(operation === "download")
+          performDownload(msg)
+        else{
+          const result = await performApply(msg);
+          console.log('Apply result:', result);
+          }
         // Handle the response
-        console.log('Apply result:', result);
     } catch (error) {
         console.error('Apply failed:', error);
     }
