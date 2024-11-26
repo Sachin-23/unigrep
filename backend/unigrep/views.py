@@ -64,7 +64,10 @@ def apply(request):
     except Exception as e:
         return JsonResponse({"Error": str(e)})
 
-    process_apply(applydata)
+    log_text = process_apply(applydata)
 
-    return HttpResponse(str.encode('{"status": 200}'), content_type='application/json')
+    return JsonResponse({
+        "log": log_text,
+        "status": 200
+    })
 

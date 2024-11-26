@@ -102,7 +102,6 @@ class QuerySchema(Schema):
 class ApplySchema(Schema):
     search_domain       = fields.Str()
     root_address        = fields.Str(allow_none=True)
-    recursion_depth     = fields.Int(allow_none=True, default=5)
     auth_username       = fields.Str(allow_none=True)
     auth_password       = fields.Str(allow_none=True)
     operation           = fields.Str()
@@ -426,6 +425,38 @@ class SSHDriver(Driver):
 
         return result
 
+    def download(self, apply_data: ApplySchema) -> HttpResponse:
+        ssh = paramiko.SSHClient()
+        ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+        sftp = None
+
+        try:
+            if apply_data.auth_username != None and apply_data.auth_password != None and apply_data.root_address != None:
+                ssh.connect(hostname=apply_data.root_address, username=apply_data.auth_username, password=apply_data.auth_password)
+                sftp = ssh.open_sftp()
+            else:
+                raise ValueError("Credentials not provided")
+        except Exception as e:
+            raise ValueError("Failed while connecting to SSH", e)
+
+        res = pd.read_csv(apply_data.result_set)
+        dlfiles = []
+
+        for filepath in res["path"]:
+            tmp = tempfile.NamedTemporaryFile()
+            sftp.get(filepath, tmp.name)
+            dlfiles.append(tmp)
+
+        response = HttpResponse(content_type='application/octet-stream')
+        response['Content-Disposition'] = 'attachment; filename="files.zip"'
+        z = zipfile.ZipFile(response, "w")
+
+        for file in dlfiles:
+            z.write(file.name, os.path.basename(file.name))
+
+        z.close()
+        return response
+
 ##
 ## Gets the domain from a location string
 ##
@@ -464,15 +495,28 @@ def get_domain_from_location(location: str) -> str:
 def make_zip(files: Iterable[File]) -> zipfile.ZipFile:
     raise NotImplementedError()
 
-
 def process_apply(params: ApplySchema):
+    log_text: str = ""
     if params.search_domain == "local":
         if params.operation == "copy":
-            print("copy executed")
+            p = pd.DataFrame(params.result_set)
+            for src_path in p["path"]:
+                print(f"Copy {src_path} -> {params.parameters['destination_path']}")
+                log_text += f"Copy {src_path} -> {params.parameters['destination_path']}\n"
+                LocalDriver().copy(src_path, params.parameters['destination_path'])
         elif params.operation == "move":
-            print("move executed")
+            p = pd.DataFrame(params.result_set)
+            for src_path in p["path"]:
+                print(f"Move {src_path} -> {params.parameters['destination_path']}")
+                log_text += f"Move {src_path} -> {params.parameters['destination_path']}\n"
+                LocalDriver().copy(src_path, params.parameters['destination_path'])
+                LocalDriver().delete(src_path)
         elif params.operation == "delete":
-            print("delete executed")
+            p = pd.DataFrame(params.result_set)
+            for src_path in p["path"]:
+                print(f"Delete {src_path}")
+                log_text += f"Delete {src_path}\n"
+                LocalDriver().delete(src_path)
         else:
             raise ValueError("Unknown Operation on Local")
     elif params.search_domain == "ftp":
@@ -485,6 +529,8 @@ def process_apply(params: ApplySchema):
             print("download executed")
         else:
             raise ValueError("Unknown Operation on SSH")
+
+    return log_text
 
 # def _test():
 #     s = FTPDriver()
