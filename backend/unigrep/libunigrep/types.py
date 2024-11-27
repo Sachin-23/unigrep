@@ -247,6 +247,22 @@ class LocalDriver(Driver):
     def delete(self, src: Path | str):
         Path(src).unlink()
 
+    def run_command(self, command: str, files: Iterable[Path | str]) -> str:
+        log_text = ""
+        for file in files:
+            dirname = os.path.dirname(file)
+            basename = os.path.basename(file)
+            augmented_command = command.replace("$FILENAME$", str(file));
+            augmented_command = augmented_command.replace("$DIRNAME$", str(dirname));
+            augmented_command = augmented_command.replace("$BASENAME$", str(basename));
+            print(f"Running command for {file}: {augmented_command}")
+            log_text += f"Running command for {file}: {augmented_command}\n"
+            result = os.system(augmented_command)
+            if result != 0:
+                raise RuntimeError(f"Command Failed with exit status {result} on file {file}")
+            return log_text
+
+
 RECURSION_DEPTH_HARD_LIMIT = 6
 
 class FTPDriver(Driver):
@@ -524,8 +540,7 @@ def process_apply(params: ApplySchema):
                 LocalDriver().delete(src_path)
         elif params.operation == "run_command":
             p = pd.DataFrame(params.result_set)
-            for src_path in p["path"]:
-                print(f"Run command {src_path}")
+            log_text = LocalDriver().run_command(params.parameters['command'], p['path'])
         elif params.operation == "download":
             p = pd.DataFrame(params.result_set)
             return LocalDriver().download(p["path"])

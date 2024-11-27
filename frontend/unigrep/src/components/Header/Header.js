@@ -1,11 +1,14 @@
 import React from 'react';
 import './Header.css'; // Assuming we're keeping the styles in a CSS file
-// import SVG from './SVG'
+                       //
+
+import Logo from "./logo_short_export.png";
+//import SVG from './SVG'
 function Header() {
   return (
     <div>
       <div className="header-title">
-      {/* <SVG/> */}
+      <img src={Logo} width={300} alt="Unigrep Logo"/>
       </div>
       {/* <div className="tabbar">
         <div className="tab" style={{ backgroundColor: '#444444' }}>Filter</div>

@@ -21,7 +21,6 @@ function FilterQuery() {
         
         {/* Filenames and File Contents as radio buttons */}
         <div className="button-bar darkgreen">
-          <label className="radio-button">
             <input
               type="radio"
               name="queryType"
@@ -29,9 +28,9 @@ function FilterQuery() {
               checked={selectedOption === 'filenames'}
               onChange={() => setSelectedOption('filenames')}
             />
+            <label className="radio-button">
             Filenames
           </label>
-          <label className={`radio-button ${selectedLocation === 'ftp' ? 'disabled' : ''}`}>
             <input
               type="radio"
               name="queryType"
@@ -40,13 +39,13 @@ function FilterQuery() {
               onChange={() => setSelectedOption('fileContents')}
               disabled={selectedLocation === 'ftp'} // Disable if FTP is selected
             />
+            <label className={`radio-button ${selectedLocation === 'ftp' ? 'disabled' : ''}`}>
             File Contents
           </label>
         </div>
 
         {/* Local, FTP, and SFTP as radio buttons */}
         <div className="button-bar">
-          <label className="radio-button">
             <input
               type="radio"
               name="locationType"
@@ -54,9 +53,9 @@ function FilterQuery() {
               checked={selectedLocation === 'local'}
               onChange={() => handleLocationChange('local')}
             />
+          <label className="radio-button">
             Local
           </label>
-          <label className="radio-button">
             <input
               type="radio"
               name="locationType"
@@ -64,9 +63,9 @@ function FilterQuery() {
               checked={selectedLocation === 'ftp'}
               onChange={() => handleLocationChange('ftp')}
             />
+           <label className="radio-button">
             FTP
           </label>
-          <label className="radio-button">
             <input
               type="radio"
               name="locationType"
@@ -74,6 +73,7 @@ function FilterQuery() {
               checked={selectedLocation === 'sftp'}
               onChange={() => handleLocationChange('sftp')}
             />
+          <label className="radio-button">
             SFTP
           </label>
         </div>

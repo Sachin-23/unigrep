@@ -10,8 +10,8 @@ const App = () => {
   return (
     <TabStateProvider>
       <Header/>
-      <div>
-        <button onClick={() => setActiveTab(1)}>Filter</button>
+      <div className="container">
+        <button className="tab" onClick={() => setActiveTab(1)}>Filter</button>
         <button onClick={() => setActiveTab(2)}>Apply</button>
 
         {activeTab === 1 && <Tab1 />}
