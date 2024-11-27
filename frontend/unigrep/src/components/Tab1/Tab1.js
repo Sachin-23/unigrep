@@ -36,7 +36,7 @@ const Tab1 = () => {
   };
 
   const [locations, setLocations] = useState([
-    "/home/edit/this/default/location",
+    "C:\\Users\\preet\\Documents",
   ]);
 
   const [isValid, setIsValid] = useState(false); // Tracks the validation status

@@ -20,6 +20,9 @@ const Tab2 = () => {
   const [isValid, setIsValid] = useState(false); // Tracks the validation status
   const [errorMessage, setErrorMessage] = useState("");
 
+  const [isLoading, setIsLoading] = useState(false);
+
+
   // Validation logic in useEffect
   useEffect(() => {
     let error = "";
@@ -70,7 +73,7 @@ const Tab2 = () => {
     })
     .then (
       resp => {
-        console.log(resp);
+        console.log("Perform Download Response: ", resp);
         if (resp.headers.get("Content-Type") != "application/octet-stream") {
           alert("Error in getting value")
           return null
@@ -113,6 +116,7 @@ const Tab2 = () => {
     console.log(msg)
     try {
         // Call performSearch from the utils file
+        setIsLoading(1);
         if(operation === "download")
           performDownload(msg)
         else{
@@ -120,6 +124,7 @@ const Tab2 = () => {
           console.log('Apply result:', result);
           }
         // Handle the response
+        setTimeout(1000, () => setIsLoading(0));
     } catch (error) {
         console.error('Apply failed:', error);
     }
@@ -146,15 +151,14 @@ const Tab2 = () => {
       <div className="apply-section">
         <div className="caption">Operation</div>
         <select value={operation} onChange={handleOperationChange} className="operation-dropdown">
+          {<option selected value="download">Download</option>}
           {selectedConnection === 'local' && <option value="copy">Copy</option>}
           {selectedConnection === 'local' && <option value="move">Move</option>}
           {selectedConnection === 'local' && <option value="delete">Delete</option>}
           {selectedConnection === 'local' && <option value="run_command">Command</option>}
-
-          {selectedConnection !== 'local' && <option value="download">Download</option>}
         </select>
       </div>
-
+      <div>{operation}</div>
       {(operation === "move" || operation === "copy" ) && (
         <div className="apply-section">
           <div className="caption">{operation} Location:</div>
@@ -194,9 +198,10 @@ const Tab2 = () => {
       </div> */}
       <button
         onClick={handleApply}
-        className="apply-button" disabled={!isValid}>
-          Apply
+        className="apply-button" disabled={!isValid && isLoading}>
+          {isLoading ? "Loading" : "Apply"}
           </button>
+
       {errorMessage && (
         <p className="error" style={{ color: "red" }}>
           {errorMessage}
