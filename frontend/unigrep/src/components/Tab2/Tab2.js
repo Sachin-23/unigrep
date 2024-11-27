@@ -124,7 +124,8 @@ const Tab2 = () => {
           console.log('Apply result:', result);
           }
         // Handle the response
-        setTimeout(1000, () => setIsLoading(0));
+        setTimeout(() => {}, 3000);
+        setIsLoading(0);
     } catch (error) {
         console.error('Apply failed:', error);
     }
