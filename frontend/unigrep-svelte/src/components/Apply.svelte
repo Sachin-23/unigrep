@@ -4,7 +4,7 @@
 
 <script lang="ts">
   import { onDestroy } from "svelte";
-  import { password, resultSet, rootAddress, searchDomain, username } from "../lib/GlobalState";
+  import { password, resultDisplaySet, resultSet, rootAddress, searchDomain, username } from "../lib/GlobalState";
   let { displayed } = $props()
 
   const ipAddr = "localhost"
@@ -51,11 +51,33 @@
 
   }
 
+  const runCommand = () => {
+    fetch(`http://${ipAddr}:${clientPort}/api/apply/`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        "search_domain": $searchDomain,
+        "root_address":  $rootAddress,
+        "auth_username": $username,
+        "auth_password": $password,
+        "operation":     "run_command",
+        "parameters":    { "command": "touch /tmp/runned$BASENAME$.txt" },
+        "result_set":    $resultSet})
+    })
+    .then(
+      resp => {
+        console.log(resp);
+      },
+      reason => { alert(`${reason}`);})
+  }
+
 </script>
 
 <div class="apply-body" style:display={displayed ? "block" : "none"} >
   <div class="apply-head-caption">
-    Operating on { $resultSet.length } files.
+    Operating on { $resultDisplaySet.length } files.
   </div>
 
   <div class="apply-body-content">
@@ -84,6 +106,8 @@
     </div>
 
     <button class="button" onclick={performDownload}>Download</button>
+    <button class="button" onclick={runCommand}>Run Command</button>
+
 
     <div class="caption">Preview</div>
 
