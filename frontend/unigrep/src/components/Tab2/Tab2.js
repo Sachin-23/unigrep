@@ -96,6 +96,7 @@ const Tab2 = () => {
     )
 
   }
+  const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 
   const handleApply = async () => {
@@ -124,7 +125,7 @@ const Tab2 = () => {
           console.log('Apply result:', result);
           }
         // Handle the response
-        setTimeout(() => {}, 3000);
+        await delay(3000)
         setIsLoading(0);
     } catch (error) {
         console.error('Apply failed:', error);
