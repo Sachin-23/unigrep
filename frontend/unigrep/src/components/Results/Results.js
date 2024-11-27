@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import './Results.css';
+import React, { useEffect, useState } from "react";
+import "./Results.css";
 
 function Results() {
   const [results, setResults] = useState([]);
@@ -10,10 +10,22 @@ function Results() {
     const fetchData = async () => {
       // This would typically be an actual API call
       const data = [
-        { filename: 'My Doc: First.doc', location: '/home/user/Documents/work' },
-        { filename: 'My Doc: Second.doc', location: '/home/user/Documents/work' },
-        { filename: 'My Doc: Third.doc', location: '/home/user/Documents/work' },
-        { filename: 'My Doc: First Draft.doc', location: '/home/user/Documents/work/backup' },
+        {
+          filename: "My Doc: First.doc",
+          location: "/home/user/Documents/work",
+        },
+        {
+          filename: "My Doc: Second.doc",
+          location: "/home/user/Documents/work",
+        },
+        {
+          filename: "My Doc: Third.doc",
+          location: "/home/user/Documents/work",
+        },
+        {
+          filename: "My Doc: First Draft.doc",
+          location: "/home/user/Documents/work/backup",
+        },
       ];
       setResults(data);
     };

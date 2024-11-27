@@ -1,91 +1,86 @@
 .container {
-  max-width: 1024px;
-  margin: auto;
-  text-align: justify;
-  font-family: sans-serif;
-  background: #f2f2f2;
+    max-width: 1024px;
+    margin: auto;
+    text-align: justify;
+    font-family: sans-serif;
+    background: #f2f2f2;
 }
 
 .App {
-  text-align: center;
+    text-align: center;
 }
 
 .App-logo {
-  height: 40vmin;
-  pointer-events: none;
+    height: 40vmin;
+    pointer-events: none;
 }
 .tabbar {
-  display: flex;
-  flex-direction: row;
-  align-items: left;
-  gap: 10px;
-  padding-left: 5px;
-  padding-right: 5px;
-  padding-top: 5px;
-  background-color: #dddddd;
-  border-bottom: 2px solid #666666;
+    display: flex;
+    flex-direction: row;
+    align-items: left;
+    gap: 10px;
+    padding-left: 5px;
+    padding-right: 5px;
+    padding-top: 5px;
+    background-color: #dddddd;
+    border-bottom: 2px solid #666666;
 }
 
 .loader {
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  display: block;
-  margin:15px auto;
-  position: relative;
-  color: black;
-  box-sizing: border-box;
-  animation: animloader 2s linear infinite;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    display: block;
+    margin: 15px auto;
+    position: relative;
+    color: black;
+    box-sizing: border-box;
+    animation: animloader 2s linear infinite;
 }
 
 .tab {
-  border-top-left-radius: 3px;
-  border-top-right-radius: 3px;
-  margin-bottom: 0;
-  padding: 5px;
-  background-color: #666666;
-  color: white;
-  font-size: 12px;
-  font-weight: bold;
-  cursor: pointer;
-  text-transform: uppercase;
+    border-top-left-radius: 3px;
+    border-top-right-radius: 3px;
+    margin-bottom: 0;
+    padding: 5px;
+    background-color: #666666;
+    color: white;
+    font-size: 12px;
+    font-weight: bold;
+    cursor: pointer;
+    text-transform: uppercase;
 }
 
 .active-tab {
-  background-color: #444444; /* Active tab color */
+    background-color: #444444; /* Active tab color */
 }
 
 @media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
+    .App-logo {
+        animation: App-logo-spin infinite 20s linear;
+    }
 }
 
 .App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
+    background-color: #282c34;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-size: calc(10px + 2vmin);
+    color: white;
 }
 
 .App-link {
-  color: #61dafb;
+    color: #61dafb;
 }
 
 @keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
 }
-
-
-
-
-
