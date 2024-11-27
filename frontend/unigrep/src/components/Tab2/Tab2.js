@@ -9,6 +9,8 @@ const Tab2 = () => {
   const { selectedFileType, selectedConnection, selectedMode, searchResult, root, username, password } = useTabState();
   const [operation, setOperation] = useState("download");
   const [location, setLocation] = useState("/destination/location");
+  const [command, setCommand] = useState("");
+
   const handleOperationChange = (e) => {
     setOperation(e.target.value);
     if (e.target.value === "delete") {
@@ -26,7 +28,8 @@ const Tab2 = () => {
     const isAuthValid = username && password && root && username.trim() !== "" && password.trim() !== "" && root.trim() !== "";
     const isOnlyRootRequired = selectedConnection === "ftp";
     const isOnlyRootValid = root && root.trim() !== "";
-    const isValid = isLocationValid && (!isAuthRequired || isAuthValid) && searchResult;
+    const isCommandValid = operation === "run_command" ? command.trim() !== "" : true
+    const isValid = isCommandValid && isLocationValid && (!isAuthRequired || isAuthValid) && searchResult;
     setIsValid(isValid); // Button is disabled if validation fails
 
     if(!searchResult){
@@ -40,14 +43,21 @@ const Tab2 = () => {
     else if (isOnlyRootRequired && !isOnlyRootValid){
       error = "Please provide valid root address"
     }
+    else if(!isCommandValid){
+      error = "Enter Valid Command"
+    }
     
 
     setErrorMessage(error); // Set the error message
 
-  }, [location, selectedConnection, username, password, root , operation]);
+  }, [location, selectedConnection, username, password, root , operation , command]);
 
   const handleLocationChange = (e) => {
     setLocation(e.target.value);
+  };
+
+  const handleCommandChange = (e) => {
+    setCommand(e.target.value);
   };
 
   const performDownload = (msg) => {
@@ -93,9 +103,11 @@ const Tab2 = () => {
         auth_username: username,
         auth_password: password,
         operation: operation,
-        parameters: (operation === "delete" || operation === "download") ? null : {
+        parameters: (operation === "delete" || operation === "download") ? null : (
+          operation === "run_command" ? { "command" : command} :
+          {
           "destination_path" : location
-        },
+        }),
         result_set : searchResult
     };
     console.log(msg)
@@ -137,12 +149,13 @@ const Tab2 = () => {
           {selectedConnection === 'local' && <option value="copy">Copy</option>}
           {selectedConnection === 'local' && <option value="move">Move</option>}
           {selectedConnection === 'local' && <option value="delete">Delete</option>}
+          {selectedConnection === 'local' && <option value="run_command">Command</option>}
 
           {selectedConnection !== 'local' && <option value="download">Download</option>}
         </select>
       </div>
 
-      {(operation !== "delete" && operation !== "download" ) && (
+      {(operation === "move" || operation === "copy" ) && (
         <div className="apply-section">
           <div className="caption">{operation} Location:</div>
           <input
@@ -155,17 +168,30 @@ const Tab2 = () => {
         </div>  
       )}
 
-      <div className="apply-section">
+{(operation === "run_command" ) && (
+        <div className="apply-section">
+          <div className="caption">Command : </div>
+          <input
+            type="text"
+            value={command}
+            onChange={handleCommandChange}
+            className="location-input"
+            placeholder={`Enter Command`}
+          />
+        </div>  
+      )}
+
+      {/* <div className="apply-section">
         <div className="caption">Preview</div>
         <div className="preview-list">
-          {/* {searchResult.path.map((file, index) => (
+          {searchResult.path.map((file, index) => (
             <div key={index} className="preview-item">
               <div className="title">{file.name}</div>
               <div className="path">{file.path}</div>
             </div>
-          ))} */}
+          ))}
         </div>
-      </div>
+      </div> */}
       <button
         onClick={handleApply}
         className="apply-button" disabled={!isValid}>
