@@ -40,6 +40,9 @@ const Tab1 = () => {
   ]);
 
   const [isValid, setIsValid] = useState(false); // Tracks the validation status
+
+  const [isLoading, setIsLoading] = useState(false);
+
   // Validation logic in useEffect
   useEffect(() => {
     let error = "";
@@ -75,6 +78,8 @@ const Tab1 = () => {
     setErrorMessage(error); // Set the error message
   }, [inputValue, locations, selectedConnection, username, password, root]); // Dependencies: Re-run when these change
 
+  const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
   const handleSearch = async () => {
     // Build the request body based on input fields and selected radio buttons
     const msg = {
@@ -91,8 +96,11 @@ const Tab1 = () => {
     console.log(msg);
     try {
       // Call performSearch from the utils file
-      const result = await performSearch(msg);
+      setIsLoading(1);
 
+      const result = await performSearch(msg);
+      await delay(3000)
+      setIsLoading(0);
       // Handle the response
       console.log("Search result:", result);
       updateSearchResult(result); // Store result in context
@@ -225,8 +233,8 @@ const Tab1 = () => {
       <FilterLocations locations={locations} setLocations={setLocations} />
 
       {/* Search Button with inline CSS */}
-      <button onClick={handleSearch} className="search" disabled={!isValid}>
-        Search
+      <button onClick={handleSearch} className="search" disabled={!isValid && isLoading}>
+      {isLoading ? "Loading" : "Search"}
       </button>
       {errorMessage && (
         <p className="error" style={{ color: "red" }}>
